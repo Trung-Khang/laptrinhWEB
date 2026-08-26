@@ -54,7 +54,7 @@ Dự án đã trải qua một quá trình nâng cấp toàn diện từ thiết
 * SQL Server đang chạy và đã **import 2 file SQL** trong thư mục `/sql`.
 * *Lưu ý Port:* Dự án đang dùng port DB `127.0.0.1:52282`. Vui lòng sửa lại port trong file `DBConnection.java` và `persistence.xml` (thường là `1433`) cho khớp với máy của bạn.
 
-### Cách 1: Chạy bằng Eclipse (Khuyến nghị cho Giảng viên chấm bài)
+### Cách 1: Chạy bằng Eclipse (Khuyến nghị)
 1. Mở Eclipse, chọn **File** -> **Import** -> **Maven** -> **Existing Maven Projects**.
 2. Trỏ đường dẫn đến thư mục chứa file `pom.xml` của project và nhấn Finish.
 3. Chờ Maven tải xong thư viện. Ở tab *Servers* phía dưới, đảm bảo đã add Tomcat 11.
@@ -66,3 +66,5 @@ Dự án đã trải qua một quá trình nâng cấp toàn diện từ thiết
 2. Mở Terminal (`Ctrl + ~`) và gõ lệnh build mã nguồn:
    ```bash
    mvn clean package -DskipTests
+3. Tải extension Community Server Connector -> add Tomcat v11 -> deploy file: dangnhap.war
+4. Sang mục Run and Debug cấu hình file launch.json: add Java -> Run
