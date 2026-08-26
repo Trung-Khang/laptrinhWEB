@@ -1,4 +1,4 @@
-# 🛒 Báo Cáo Đồ Án: Hệ Thống Quản Trị Cửa Hàng (Java Web)
+# Báo Cáo Đồ Án: Hệ Thống Quản Trị Cửa Hàng (Java Web)
 
 **Sinh viên thực hiện:** Nguyễn Trung Khang
 **MSSV:** 24133028
