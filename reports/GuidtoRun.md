@@ -5,16 +5,13 @@ cách chạy:
 4. qua bên Run and Debug chọn Mo trang Dang nhap -> Run
 
 khi cập nhập code:
+
+Bạn bấm Stop Tomcat trong mục Servers.
 Build lại project (để tạo file .war mới chứa code đã sửa):
 Mở terminal gõ lại lệnh quen thuộc:
 
-
 `mvn clean package -DskipTests`
 
-
-Khởi động lại Tomcat (Restart/Redeploy):
-
-Bạn bấm Stop Tomcat trong mục Servers.
-
-Sau đó bấm Start (hoặc Debug lại nếu muốn soi code).
-(Vì Tomcat cần nạp lại file dangnhap.war mới thì nó mới cập nhật code mới cho bạn).
+Khởi động lại Tomcat (Restart in Debug Mode):
+Ấn Enter
+Qua Run and Debug => run
