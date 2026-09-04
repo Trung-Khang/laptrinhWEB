@@ -167,26 +167,95 @@ Database moi:
 
 Theo yeu cau duoc cung cap, cac module sau can duoc trien khai tiep, nhung hien chua co source tuong ung:
 
-- Quan ly don hang
 - Quan ly nguoi dung trong admin
 - Thong ke san pham lay du lieu tu database
-- Bang `orders`
-- Bang `order_items`
 - SQL seed du khoang 50 san pham cong nghe
 - Seed customer va 10-15 don hang
 - Filter bao ve `/admin/*` va phan quyen ADMIN/CUSTOMER
 
 Sidebar trong JSP Category hien van co cac link placeholder `href="#"` cho:
 
-- Quan ly San pham
-- Quan ly Don hang
 - Quan ly Nguoi dung
 - Thong ke
 - Cai dat
 
 Muc `Cai dat` can xoa khi trien khai tiep.
 
-## 8. Cac viec can lam tiep de hoan thanh day du yeu cau
+## 8. Module Quan ly Don hang da trien khai
+
+Da bo sung module Quan ly Don hang trong admin.
+
+File Java da tao/sua:
+
+- `src/main/java/vn/iotstar/entity/Order.java`
+- `src/main/java/vn/iotstar/entity/OrderItem.java`
+- `src/main/java/vn/iotstar/dao/IOrderDao.java`
+- `src/main/java/vn/iotstar/dao/OrderDao.java`
+- `src/main/java/vn/iotstar/service/IOrderService.java`
+- `src/main/java/vn/iotstar/service/impl/OrderServiceImpl.java`
+- `src/main/java/vn/iotstar/controller/OrderBaseController.java`
+- `src/main/java/vn/iotstar/controller/OrderListController.java`
+- `src/main/java/vn/iotstar/controller/OrderDetailController.java`
+- `src/main/java/vn/iotstar/controller/OrderUpdateStatusController.java`
+- `src/main/resources/META-INF/persistence.xml`
+
+File JSP da tao/sua:
+
+- `src/main/webapp/views/admin/list-order.jsp`
+- `src/main/webapp/views/admin/detail-order.jsp`
+- `src/main/webapp/views/admin/list-category.jsp`
+- `src/main/webapp/views/admin/add-category.jsp`
+- `src/main/webapp/views/admin/edit-category.jsp`
+- `src/main/webapp/views/admin/list-product.jsp`
+
+File SQL da sua:
+
+- `sql/ShoppingServiceMVC.sql`
+
+Chuc nang da co:
+
+- Danh sach don hang
+- Tim kiem theo ma don, ten khach hang, so dien thoai
+- Loc theo trang thai
+- Phan trang 10 don/trang
+- Xem chi tiet don hang
+- Hien thi danh sach san pham trong don
+- Cap nhat trang thai don hang
+- Kiem tra luong chuyen trang thai hop le
+- Khong hard-delete don hang; muon huy thi chuyen sang trang thai `CANCELLED`
+- Link sidebar "Quan ly Don hang" da tro den `/admin/order/list`
+
+Trang thai don hang:
+
+- `PENDING`: Cho xac nhan
+- `CONFIRMED`: Da xac nhan
+- `SHIPPING`: Dang giao
+- `COMPLETED`: Hoan thanh
+- `CANCELLED`: Da huy
+
+Quy tac chuyen trang thai:
+
+- `PENDING` -> `CONFIRMED` hoac `CANCELLED`
+- `CONFIRMED` -> `SHIPPING` hoac `CANCELLED`
+- `SHIPPING` -> `COMPLETED` hoac `CANCELLED`
+- `COMPLETED` va `CANCELLED` khong duoc chuyen tiep
+
+URL moi:
+
+- `/admin/order/list`
+- `/admin/order/detail?id=...`
+- `/admin/order/update-status`
+
+Database moi:
+
+- Bang `orders`
+- Bang `order_items`
+- Khoa ngoai `order_items.order_id` tham chieu `orders(id)`
+- Khoa ngoai `order_items.product_id` tham chieu `products(id)`
+- Index cho trang thai, ngay dat, khach hang/so dien thoai, order item
+- Seed mot so don hang mau voi nhieu trang thai khac nhau
+
+## 9. Cac viec can lam tiep de hoan thanh day du yeu cau
 
 Can bo sung cac nhom file sau:
 
@@ -208,7 +277,7 @@ Khuyen nghi khi trien khai:
 - Them validate server-side cho product/order/user.
 - Xoa `target/` khoi Git neu dang bi track.
 
-## 9. Ket qua build
+## 10. Ket qua build
 
 Da chay lenh:
 
@@ -218,11 +287,11 @@ mvn clean package -DskipTests
 
 Ket qua:
 
-- BUILD SUCCESS luc 22:15 ngay 04/09/2026
+- BUILD SUCCESS luc 22:31 ngay 04/09/2026
 - WAR duoc tao tai `target/dangnhap.war`
 - Tests bi skip theo tham so `-DskipTests`
 
-## 10. Cac phan chua kiem thu thuc te
+## 11. Cac phan chua kiem thu thuc te
 
 Chua kiem thu truc tiep tren SQL Server/Tomcat trong bao cao nay:
 
@@ -232,10 +301,12 @@ Chua kiem thu truc tiep tren SQL Server/Tomcat trong bao cao nay:
 - Debug attach thanh cong trong VS Code
 - CRUD Product tren browser
 - Chay script SQL Product tren SSMS
+- Danh sach/chi tiet/cap nhat trang thai don hang tren browser
+- Chay script SQL Order/OrderItem tren SSMS
 
 Ly do: qua terminal chi xac minh duoc build Maven va cau truc file; viec kiem thu browser/Tomcat/SQL Server can thuc hien tren moi truong VS Code/Tomcat dang chay cua may.
 
-## 11. Tai khoan mau
+## 12. Tai khoan mau
 
 Theo `sql/DB_LapTrinhWeb.sql`:
 
@@ -243,7 +314,7 @@ Theo `sql/DB_LapTrinhWeb.sql`:
 - `manager` / `123`
 - `user` / `123`
 
-## 12. File SQL can chay
+## 13. File SQL can chay
 
 Thu tu hien tai:
 

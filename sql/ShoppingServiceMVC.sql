@@ -97,3 +97,76 @@ BEGIN
     UNION ALL SELECT N'Hub USB-C 7 in 1', cate_id, N'Hub mở rộng cổng cho laptop.', 690000, 20, N'https://placehold.co/300x300?text=USB-C+Hub', 1 FROM dbo.Category WHERE cate_name = N'Phụ kiện';
 END
 GO
+
+-- 8. Tao bang orders va order_items cho module Quan ly Don hang
+IF OBJECT_ID(N'dbo.orders', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.orders
+    (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        user_id INT NULL,
+        customer_name NVARCHAR(150) NOT NULL,
+        phone NVARCHAR(20) NULL,
+        shipping_address NVARCHAR(500) NULL,
+        order_date DATETIME2 NOT NULL CONSTRAINT DF_orders_order_date DEFAULT SYSDATETIME(),
+        total_amount DECIMAL(18,2) NOT NULL CONSTRAINT DF_orders_total DEFAULT 0,
+        status VARCHAR(30) NOT NULL CONSTRAINT DF_orders_status DEFAULT 'PENDING',
+        note NVARCHAR(500) NULL,
+        CONSTRAINT CK_orders_status CHECK (status IN ('PENDING','CONFIRMED','SHIPPING','COMPLETED','CANCELLED'))
+    );
+    CREATE INDEX IX_orders_status ON dbo.orders(status);
+    CREATE INDEX IX_orders_order_date ON dbo.orders(order_date);
+    CREATE INDEX IX_orders_customer_phone ON dbo.orders(customer_name, phone);
+END
+GO
+
+IF OBJECT_ID(N'dbo.order_items', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.order_items
+    (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        order_id INT NOT NULL,
+        product_id INT NOT NULL,
+        quantity INT NOT NULL CONSTRAINT CK_order_items_quantity CHECK (quantity > 0),
+        unit_price DECIMAL(18,2) NOT NULL CONSTRAINT CK_order_items_unit_price CHECK (unit_price >= 0),
+        subtotal DECIMAL(18,2) NOT NULL CONSTRAINT CK_order_items_subtotal CHECK (subtotal >= 0),
+        CONSTRAINT FK_order_items_orders FOREIGN KEY (order_id) REFERENCES dbo.orders(id),
+        CONSTRAINT FK_order_items_products FOREIGN KEY (product_id) REFERENCES dbo.products(id)
+    );
+    CREATE INDEX IX_order_items_order_id ON dbo.order_items(order_id);
+    CREATE INDEX IX_order_items_product_id ON dbo.order_items(product_id);
+END
+GO
+
+-- 9. Seed don hang mau neu chua co
+IF NOT EXISTS (SELECT 1 FROM dbo.orders)
+BEGIN
+    DECLARE @p1 INT = (SELECT TOP 1 id FROM dbo.products ORDER BY id);
+    DECLARE @p2 INT = (SELECT TOP 1 id FROM dbo.products WHERE id <> @p1 ORDER BY id);
+    DECLARE @p3 INT = (SELECT TOP 1 id FROM dbo.products WHERE id NOT IN (@p1, @p2) ORDER BY id);
+
+    INSERT INTO dbo.orders(customer_name, phone, shipping_address, order_date, total_amount, status, note)
+    VALUES
+    (N'Nguyễn Văn An', N'0901000001', N'Quận 1, TP.HCM', DATEADD(day, -5, SYSDATETIME()), 0, 'PENDING', N'Giao giờ hành chính'),
+    (N'Trần Thị Bình', N'0901000002', N'Thủ Đức, TP.HCM', DATEADD(day, -4, SYSDATETIME()), 0, 'CONFIRMED', N'Khách đã xác nhận'),
+    (N'Lê Minh Cường', N'0901000003', N'Quận 7, TP.HCM', DATEADD(day, -3, SYSDATETIME()), 0, 'SHIPPING', N'Đang giao'),
+    (N'Phạm Hoài Dương', N'0901000004', N'Biên Hòa, Đồng Nai', DATEADD(day, -2, SYSDATETIME()), 0, 'COMPLETED', N'Đã thanh toán'),
+    (N'Võ Ngọc Hân', N'0901000005', N'Dĩ An, Bình Dương', DATEADD(day, -1, SYSDATETIME()), 0, 'CANCELLED', N'Khách hủy');
+
+    INSERT INTO dbo.order_items(order_id, product_id, quantity, unit_price, subtotal)
+    SELECT o.id, @p1, 1, p.price, p.price FROM dbo.orders o CROSS JOIN dbo.products p WHERE p.id = @p1 AND o.customer_name = N'Nguyễn Văn An'
+    UNION ALL SELECT o.id, @p2, 2, p.price, p.price * 2 FROM dbo.orders o CROSS JOIN dbo.products p WHERE p.id = @p2 AND o.customer_name = N'Trần Thị Bình'
+    UNION ALL SELECT o.id, @p3, 1, p.price, p.price FROM dbo.orders o CROSS JOIN dbo.products p WHERE p.id = @p3 AND o.customer_name = N'Lê Minh Cường'
+    UNION ALL SELECT o.id, @p1, 1, p.price, p.price FROM dbo.orders o CROSS JOIN dbo.products p WHERE p.id = @p1 AND o.customer_name = N'Phạm Hoài Dương'
+    UNION ALL SELECT o.id, @p2, 1, p.price, p.price FROM dbo.orders o CROSS JOIN dbo.products p WHERE p.id = @p2 AND o.customer_name = N'Võ Ngọc Hân';
+
+    UPDATE o
+    SET total_amount = x.total
+    FROM dbo.orders o
+    INNER JOIN (
+        SELECT order_id, SUM(subtotal) AS total
+        FROM dbo.order_items
+        GROUP BY order_id
+    ) x ON x.order_id = o.id;
+END
+GO
