@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html lang="vi">
@@ -72,9 +72,9 @@
             <a href="${pageContext.request.contextPath}/admin/category/list" class="menu-item active"><i class="fa-solid fa-layer-group"></i> Quản lý Danh mục</a>
             <a href="${pageContext.request.contextPath}/admin/product/list" class="menu-item"><i class="fa-solid fa-box"></i> Quản lý Sản phẩm</a>
             <a href="${pageContext.request.contextPath}/admin/order/list" class="menu-item"><i class="fa-solid fa-cart-shopping"></i> Quản lý Đơn hàng</a>
-            <a href="#" class="menu-item"><i class="fa-solid fa-users"></i> Quản lý Người dùng</a>
+            <a href="${pageContext.request.contextPath}/admin/user/list" class="menu-item"><i class="fa-solid fa-users"></i> Quản lý Người dùng</a>
             <div class="menu-label" style="margin-top:12px;">Khác</div>
-            <a href="#" class="menu-item"><i class="fa-solid fa-chart-line"></i> Thống kê</a>
+            <a href="${pageContext.request.contextPath}/admin/statistics" class="menu-item"><i class="fa-solid fa-chart-line"></i> Thống kê</a>
         </nav>
         <div class="sidebar-footer"><i class="fa-regular fa-copyright"></i> 2024 Shopping Admin</div>
     </aside>

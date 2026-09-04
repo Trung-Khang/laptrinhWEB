@@ -36,7 +36,7 @@ Luu y: README ghi Java 21, nhung `pom.xml` hien compile voi Java 17 (`maven.comp
 
 Du an hien dang tach lam 2 database/luong truy cap:
 
-- Module dang nhap/dang xuat dung JDBC qua `com.baitap.connection.DBConnection`, truy van bang `[User]` trong database `DB_LapTrinhWeb`.
+- Module dang nhap/dang xuat dung JDBC qua `com.baitap.connection.DBConnection`, truy van bang `[User]` trong database `ShoppingServiceMVC`.
 - Module quan ly danh muc dung JPA/Hibernate qua persistence unit `jpa-hibernate-mysql`, nhung JDBC URL thuc te tro den SQL Server database `ShoppingServiceMVC`.
 
 Bang hien co:
@@ -163,25 +163,121 @@ Database moi:
 - Seed nhanh cac danh muc cong nghe neu chua co
 - Seed mot so san pham mau de kiem tra giao dien
 
-## 7. Cac module theo yeu cau lon chua co trong source
+## 7. Module Quan ly Nguoi dung Admin da trien khai
+
+Da bo sung module quan ly nguoi dung admin va dung lai model/bang `[User]` hien co.
+
+File Java da tao/sua:
+
+- `src/main/java/com/baitap/model/User.java`
+- `src/main/java/com/baitap/dao/UserDao.java`
+- `src/main/java/com/baitap/dao/impl/UserDaoImpl.java`
+- `src/main/java/com/baitap/service/UserService.java`
+- `src/main/java/com/baitap/service/impl/UserServiceImpl.java`
+- `src/main/java/com/baitap/controller/AdminUserListController.java`
+- `src/main/java/com/baitap/controller/AdminUserAddController.java`
+- `src/main/java/com/baitap/controller/AdminUserEditController.java`
+- `src/main/java/com/baitap/controller/AdminUserToggleController.java`
+- `src/main/java/com/baitap/controller/LoginController.java`
+- `src/main/java/com/baitap/connection/DBConnection.java`
+
+File JSP da tao:
+
+- `src/main/webapp/views/admin/list-user.jsp`
+- `src/main/webapp/views/admin/add-user.jsp`
+- `src/main/webapp/views/admin/edit-user.jsp`
+
+Chuc nang da co:
+
+- Danh sach nguoi dung
+- Tim kiem theo username, ho ten, email
+- Loc theo role va trang thai
+- Them nguoi dung
+- Sua thong tin nguoi dung
+- Khoa/mo khoa tai khoan
+- Khong hien password tren giao dien danh sach/sua
+- Phan biet `ADMIN` va `CUSTOMER` theo `roleid`
+- Khong cho admin dang dang nhap tu khoa chinh minh
+- Login chi cho tai khoan active dang nhap
+
+URL moi:
+
+- `/admin/user/list`
+- `/admin/user/add`
+- `/admin/user/edit?id=...`
+- `/admin/user/toggle?id=...&active=...`
+
+Ghi chu bao mat: mat khau van duoc giu plain text de tuong thich du lieu cu va tai khoan mau `admin/123`. Chua nang cap bam mat khau trong dot sua nay.
+
+## 8. Module Thong ke San pham da trien khai
+
+File Java da tao:
+
+- `src/main/java/vn/iotstar/dao/StatisticsDao.java`
+- `src/main/java/vn/iotstar/controller/StatisticsController.java`
+
+File JSP da tao:
+
+- `src/main/webapp/views/admin/statistics.jsp`
+
+Chuc nang da co:
+
+- Tong so san pham
+- Tong ton kho
+- So san pham sap het hang
+- So san pham het hang
+- Tong gia tri ton kho
+- So san pham theo danh muc
+- Danh sach san pham sap het hang
+- Top 5 san pham ban chay dua tren `order_items`
+
+URL moi:
+
+- `/admin/statistics`
+
+## 9. Bao ve Admin
+
+Da them filter:
+
+- `src/main/java/com/baitap/filter/AdminAuthFilter.java`
+
+Chuc nang:
+
+- Bao ve tat ca URL `/admin/*`
+- Chua dang nhap thi chuyen ve `/login`
+- Chi user co `roleid = 1` va `active = true` moi vao duoc admin
+- User khong du quyen se nhan HTTP 403
+
+## 10. Thong nhat database
+
+Da chon cach thong nhat hop ly: dua User/login/admin user sang cung database `ShoppingServiceMVC`.
+
+Da sua:
+
+- `src/main/java/com/baitap/connection/DBConnection.java`
+
+JDBC login truoc day tro den `DB_LapTrinhWeb`, nay tro den:
+
+- `ShoppingServiceMVC`
+
+SQL `ShoppingServiceMVC.sql` da tao/cap nhat bang `[User]` trong cung database nay de cac module admin dung chung database voi Product/Order/Statistics.
+
+Da bo sung fallback tam thoi trong `UserDaoImpl.findByUsername`: app uu tien tim user trong `ShoppingServiceMVC`; neu chua tim thay se thu doc database cu `DB_LapTrinhWeb`. Muc dich la giu dang nhap `admin/123` khong bi dut trong luc chua chay script SQL moi. Sau khi chay `ShoppingServiceMVC.sql`, user admin se nam trong database thong nhat.
+
+## 11. Cac module theo yeu cau lon chua co trong source
 
 Theo yeu cau duoc cung cap, cac module sau can duoc trien khai tiep, nhung hien chua co source tuong ung:
 
-- Quan ly nguoi dung trong admin
-- Thong ke san pham lay du lieu tu database
-- SQL seed du khoang 50 san pham cong nghe
-- Seed customer va 10-15 don hang
-- Filter bao ve `/admin/*` va phan quyen ADMIN/CUSTOMER
+- Bieu do Chart.js cho thong ke, hien tai moi co bang/so lieu thong ke.
+- Tru ton kho theo giao dich khi cap nhat don hang; hien tai module admin moi cap nhat trang thai va xem don.
 
 Sidebar trong JSP Category hien van co cac link placeholder `href="#"` cho:
 
-- Quan ly Nguoi dung
-- Thong ke
-- Cai dat
+- Mot so trang con toi gian nhu add/edit product, detail order, add/edit user chua tach sidebar thanh fragment dung chung.
 
-Muc `Cai dat` can xoa khi trien khai tiep.
+Muc `Cai dat` da duoc xoa khoi cac sidebar da cap nhat.
 
-## 8. Module Quan ly Don hang da trien khai
+## 12. Module Quan ly Don hang da trien khai
 
 Da bo sung module Quan ly Don hang trong admin.
 
@@ -255,7 +351,7 @@ Database moi:
 - Index cho trang thai, ngay dat, khach hang/so dien thoai, order item
 - Seed mot so don hang mau voi nhieu trang thai khac nhau
 
-## 9. Cac viec can lam tiep de hoan thanh day du yeu cau
+## 13. Cac viec can lam tiep de hoan thanh day du yeu cau
 
 Can bo sung cac nhom file sau:
 
@@ -277,7 +373,7 @@ Khuyen nghi khi trien khai:
 - Them validate server-side cho product/order/user.
 - Xoa `target/` khoi Git neu dang bi track.
 
-## 10. Ket qua build
+## 14. Ket qua build
 
 Da chay lenh:
 
@@ -287,11 +383,11 @@ mvn clean package -DskipTests
 
 Ket qua:
 
-- BUILD SUCCESS luc 22:31 ngay 04/09/2026
+- BUILD SUCCESS luc 23:08 ngay 04/09/2026
 - WAR duoc tao tai `target/dangnhap.war`
 - Tests bi skip theo tham so `-DskipTests`
 
-## 11. Cac phan chua kiem thu thuc te
+## 15. Cac phan chua kiem thu thuc te
 
 Chua kiem thu truc tiep tren SQL Server/Tomcat trong bao cao nay:
 
@@ -303,22 +399,70 @@ Chua kiem thu truc tiep tren SQL Server/Tomcat trong bao cao nay:
 - Chay script SQL Product tren SSMS
 - Danh sach/chi tiet/cap nhat trang thai don hang tren browser
 - Chay script SQL Order/OrderItem tren SSMS
+- Quan ly nguoi dung admin tren browser
+- Dashboard thong ke tren browser
+- Filter `/admin/*` voi user khong phai ADMIN tren Tomcat thuc te
 
 Ly do: qua terminal chi xac minh duoc build Maven va cau truc file; viec kiem thu browser/Tomcat/SQL Server can thuc hien tren moi truong VS Code/Tomcat dang chay cua may.
 
-## 12. Tai khoan mau
+## 16. Tai khoan mau
 
-Theo `sql/DB_LapTrinhWeb.sql`:
+Theo `sql/ShoppingServiceMVC.sql` sau khi thong nhat database:
 
-- `admin` / `123`
-- `manager` / `123`
-- `user` / `123`
+- `admin` / `123` / role ADMIN
+- `customer01` / `123` / role CUSTOMER
+- `customer02` / `123` / role CUSTOMER
+- `customer03` / `123` / role CUSTOMER
 
-## 13. File SQL can chay
+## 17. File SQL can chay
 
-Thu tu hien tai:
+Thu tu khuyen nghi hien tai:
 
-1. `sql/DB_LapTrinhWeb.sql`: tao database `DB_LapTrinhWeb` va bang `[User]`.
-2. `sql/ShoppingServiceMVC.sql`: tao database `ShoppingServiceMVC` va bang `Category`.
+1. Chay `sql/ShoppingServiceMVC.sql` tren SQL Server bang SSMS.
+2. Script nay tao/cap nhat database `ShoppingServiceMVC`.
+3. Script tao/cap nhat cac bang `[User]`, `Category`, `products`, `orders`, `order_items`.
+4. Script seed admin/customer, danh muc cong nghe, khoang 50 san pham va 10-15 don hang mau.
 
-Luu y: `persistence.xml` cua JPA dang ket noi `ShoppingServiceMVC`, con login JDBC dang ket noi theo `DBConnection.java`.
+`sql/DB_LapTrinhWeb.sql` la script cu cua module login. Sau khi thong nhat database, app dang uu tien `ShoppingServiceMVC`.
+
+File `sql/DB_LapTrinhWeb.sql` da duoc sua thanh script co the chay lai nhieu lan (`IF DB_ID`, `IF OBJECT_ID`, `IF NOT EXISTS`) va them cot `active`. File nay chi can chay neu muon giu/cap nhat database login cu dung cho fallback. De app admin co day du Product/Order/User/Statistics, can chay `sql/ShoppingServiceMVC.sql`.
+
+## 18. Huong dan chay de co du lieu moi
+
+1. Mo SSMS va ket noi SQL Server local.
+2. Mo file `sql/ShoppingServiceMVC.sql`.
+3. Bam Execute de chay toan bo script.
+4. Dam bao port/user/password trong `persistence.xml` va `DBConnection.java` khop voi SQL Server cua may.
+5. Chay lenh build:
+
+```bash
+mvn clean package -DskipTests
+```
+
+6. Deploy lai file `target/dangnhap.war` len Tomcat 11 trong VS Code.
+7. Dang nhap bang `admin` / `123`.
+8. Kiem tra cac URL:
+
+- `/admin/category/list`
+- `/admin/product/list`
+- `/admin/order/list`
+- `/admin/user/list`
+- `/admin/statistics`
+
+## 19. Sua loi font tieng Viet
+
+Da sua cac JSP admin bi mojibake dang `Quáº£n lÃ½`, `ÄÄƒng xuáº¥t`, `Sáº£n pháº©m` ve UTF-8 tieng Viet chuan.
+
+Da quet lai thu muc:
+
+- `src/main/webapp/views/admin`
+
+Ket qua: khong con chuoi mojibake pho bien trong cac JSP admin.
+
+Da build lai:
+
+```bash
+mvn clean package -DskipTests
+```
+
+Ket qua: BUILD SUCCESS luc 23:16 ngay 04/09/2026.

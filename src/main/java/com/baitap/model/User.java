@@ -10,6 +10,7 @@ public class User {
     private String password;
     private String avatar;
     private int roleid;
+    private boolean active = true;
     private String phone;
     private Date createdDate;
 
@@ -53,6 +54,8 @@ public class User {
 
     public int getRoleid() { return roleid; }
     public void setRoleid(int roleid) { this.roleid = roleid; }
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
 
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }

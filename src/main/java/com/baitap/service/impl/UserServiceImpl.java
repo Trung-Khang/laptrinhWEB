@@ -39,4 +39,24 @@ public class UserServiceImpl implements UserService {
     public void insert(User user) {
         userDao.insert(user);
     }
+
+    @Override
+    public java.util.List<User> search(String keyword, Integer roleid, Boolean active) {
+        return userDao.search(keyword, roleid, active);
+    }
+
+    @Override
+    public User findById(int id) {
+        return userDao.findById(id);
+    }
+
+    @Override
+    public void update(User user) {
+        userDao.update(user);
+    }
+
+    @Override
+    public void updateActive(int id, boolean active) {
+        userDao.updateActive(id, active);
+    }
 }

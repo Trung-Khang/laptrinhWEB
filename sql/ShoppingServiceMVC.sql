@@ -5,6 +5,7 @@
 
 -- 1. Tạo database (nếu chưa tồn tại)
 IF DB_ID(N'ShoppingServiceMVC') IS NULL
+
 BEGIN
     CREATE DATABASE ShoppingServiceMVC;
 END

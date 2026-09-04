@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 
 public class DBConnection {
     public Connection getConnection() throws Exception {
-        String url = "jdbc:sqlserver://127.0.0.1:52282;databaseName=DB_LapTrinhWeb;encrypt=false;trustServerCertificate=true";
+        String url = "jdbc:sqlserver://127.0.0.1:52282;databaseName=ShoppingServiceMVC;encrypt=false;trustServerCertificate=true";
         Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
         
         String userID = "sa"; 

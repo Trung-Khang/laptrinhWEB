@@ -48,7 +48,7 @@ public class LoginController extends HttpServlet {
         User user = userService.findByUsername(username);
 
         // Kiểm tra user tồn tại và mật khẩu khớp
-        if (user != null && user.getPassword().equals(password)) {
+        if (user != null && user.isActive() && user.getPassword().equals(password)) {
             // Đăng nhập thành công: lưu User vào session với attribute name "account"
             HttpSession session = req.getSession();
             session.setAttribute("account", user);
