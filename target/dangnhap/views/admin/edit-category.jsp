@@ -70,12 +70,11 @@
         <nav class="sidebar-menu">
             <div class="menu-label">Menu chính</div>
             <a href="${pageContext.request.contextPath}/admin/category/list" class="menu-item active"><i class="fa-solid fa-layer-group"></i> Quản lý Danh mục</a>
-            <a href="#" class="menu-item"><i class="fa-solid fa-box"></i> Quản lý Sản phẩm</a>
+            <a href="${pageContext.request.contextPath}/admin/product/list" class="menu-item"><i class="fa-solid fa-box"></i> Quản lý Sản phẩm</a>
             <a href="#" class="menu-item"><i class="fa-solid fa-cart-shopping"></i> Quản lý Đơn hàng</a>
             <a href="#" class="menu-item"><i class="fa-solid fa-users"></i> Quản lý Người dùng</a>
             <div class="menu-label" style="margin-top:12px;">Khác</div>
             <a href="#" class="menu-item"><i class="fa-solid fa-chart-line"></i> Thống kê</a>
-            <a href="#" class="menu-item"><i class="fa-solid fa-gear"></i> Cài đặt</a>
         </nav>
         <div class="sidebar-footer"><i class="fa-regular fa-copyright"></i> 2024 Shopping Admin</div>
     </aside>

@@ -1,25 +1,36 @@
-D:\Trung Khang\Documents\laptrinhWEB\src\main\java\com\baitap\connection\DBConnection.java
-D:\Trung Khang\Documents\laptrinhWEB\src\main\java\com\baitap\controller\ErrorController.java
-D:\Trung Khang\Documents\laptrinhWEB\src\main\java\com\baitap\controller\LoginController.java
-D:\Trung Khang\Documents\laptrinhWEB\src\main\java\com\baitap\controller\LogoutController.java
-D:\Trung Khang\Documents\laptrinhWEB\src\main\java\com\baitap\controller\RegisterController.java
-D:\Trung Khang\Documents\laptrinhWEB\src\main\java\com\baitap\dao\impl\UserDaoImpl.java
-D:\Trung Khang\Documents\laptrinhWEB\src\main\java\com\baitap\dao\UserDao.java
-D:\Trung Khang\Documents\laptrinhWEB\src\main\java\com\baitap\model\User.java
-D:\Trung Khang\Documents\laptrinhWEB\src\main\java\com\baitap\service\impl\UserServiceImpl.java
-D:\Trung Khang\Documents\laptrinhWEB\src\main\java\com\baitap\service\UserService.java
-D:\Trung Khang\Documents\laptrinhWEB\src\main\java\vn\iotstar\config\JpaConfig.java
-D:\Trung Khang\Documents\laptrinhWEB\src\main\java\vn\iotstar\connection\DBConnection.java
-D:\Trung Khang\Documents\laptrinhWEB\src\main\java\vn\iotstar\controller\CategoryAddController.java
-D:\Trung Khang\Documents\laptrinhWEB\src\main\java\vn\iotstar\controller\CategoryDeleteController.java
-D:\Trung Khang\Documents\laptrinhWEB\src\main\java\vn\iotstar\controller\CategoryEditController.java
-D:\Trung Khang\Documents\laptrinhWEB\src\main\java\vn\iotstar\controller\CategoryListController.java
-D:\Trung Khang\Documents\laptrinhWEB\src\main\java\vn\iotstar\controller\DownloadImageController.java
-D:\Trung Khang\Documents\laptrinhWEB\src\main\java\vn\iotstar\dao\CategoryDao.java
-D:\Trung Khang\Documents\laptrinhWEB\src\main\java\vn\iotstar\dao\ICategoryDao.java
-D:\Trung Khang\Documents\laptrinhWEB\src\main\java\vn\iotstar\entity\Category.java
-D:\Trung Khang\Documents\laptrinhWEB\src\main\java\vn\iotstar\entity\Video.java
-D:\Trung Khang\Documents\laptrinhWEB\src\main\java\vn\iotstar\service\ICategoryService.java
-D:\Trung Khang\Documents\laptrinhWEB\src\main\java\vn\iotstar\service\impl\CategoryServiceImpl.java
-D:\Trung Khang\Documents\laptrinhWEB\src\main\java\vn\iotstar\test\JpaTest.java
-D:\Trung Khang\Documents\laptrinhWEB\src\main\java\vn\iotstar\util\Constant.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\com\baitap\connection\DBConnection.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\com\baitap\controller\ErrorController.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\com\baitap\controller\LoginController.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\com\baitap\controller\LogoutController.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\com\baitap\controller\RegisterController.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\com\baitap\dao\impl\UserDaoImpl.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\com\baitap\dao\UserDao.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\com\baitap\model\User.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\com\baitap\service\impl\UserServiceImpl.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\com\baitap\service\UserService.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\vn\iotstar\config\JpaConfig.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\vn\iotstar\connection\DBConnection.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\vn\iotstar\controller\CategoryAddController.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\vn\iotstar\controller\CategoryDeleteController.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\vn\iotstar\controller\CategoryEditController.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\vn\iotstar\controller\CategoryListController.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\vn\iotstar\controller\DownloadImageController.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\vn\iotstar\controller\ProductAddController.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\vn\iotstar\controller\ProductBaseController.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\vn\iotstar\controller\ProductDeleteController.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\vn\iotstar\controller\ProductDetailController.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\vn\iotstar\controller\ProductEditController.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\vn\iotstar\controller\ProductListController.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\vn\iotstar\dao\CategoryDao.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\vn\iotstar\dao\ICategoryDao.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\vn\iotstar\dao\IProductDao.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\vn\iotstar\dao\ProductDao.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\vn\iotstar\entity\Category.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\vn\iotstar\entity\Product.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\vn\iotstar\entity\Video.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\vn\iotstar\service\ICategoryService.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\vn\iotstar\service\impl\CategoryServiceImpl.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\vn\iotstar\service\impl\ProductServiceImpl.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\vn\iotstar\service\IProductService.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\vn\iotstar\test\JpaTest.java
+D:\Trung Khang\Documents\Lập trình WEB\laptrinhWEB_baitap\src\main\java\vn\iotstar\util\Constant.java

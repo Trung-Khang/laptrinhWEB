@@ -46,6 +46,9 @@ public class Category {
                orphanRemoval = true)
     private List<Video> videos = new ArrayList<>();
 
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+    private List<Product> products = new ArrayList<>();
+
     public Category() {
     }
 
@@ -84,6 +87,14 @@ public class Category {
 
     public void setVideos(List<Video> videos) {
         this.videos = videos;
+    }
+
+    public List<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<Product> products) {
+        this.products = products;
     }
 
     /** Helper: thêm một Video vào danh mục (2 chiều). */

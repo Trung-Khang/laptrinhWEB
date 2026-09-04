@@ -1,0 +1,29 @@
+# Maven / Java build output
+/target/
+*.class
+*.war
+*.ear
+*.jar
+
+# Runtime upload files
+/upload/
+
+# IDE / editor local settings
+/.vscode/
+/.idea/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+
+# Local environment / secrets
+.env
+.env.*
+*.properties.local

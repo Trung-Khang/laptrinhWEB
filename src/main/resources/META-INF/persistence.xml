@@ -13,6 +13,7 @@
 
     <class>vn.iotstar.entity.Category</class>
     <class>vn.iotstar.entity.Video</class>
+    <class>vn.iotstar.entity.Product</class>
 
     <properties>
       <!-- Kết nối SQL Server (ShoppingServiceMVC) của project hiện tại -->
