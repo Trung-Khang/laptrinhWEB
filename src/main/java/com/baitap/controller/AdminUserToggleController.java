@@ -1,31 +1,29 @@
 package com.baitap.controller;
 
-import java.io.IOException;
-
 import com.baitap.model.User;
 import com.baitap.service.UserService;
 import com.baitap.service.impl.UserServiceImpl;
-
-import jakarta.servlet.ServletException;
+import com.baitap.util.FlashMessage;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @WebServlet(urlPatterns = "/admin/user/toggle")
 public class AdminUserToggleController extends HttpServlet {
-    private static final long serialVersionUID = 1L;
     private final UserService userService = new UserServiceImpl();
-
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        User account = (User) req.getSession().getAttribute("account");
-        int id = Integer.parseInt(req.getParameter("id"));
-        if (account != null && account.getId() == id) {
-            resp.sendRedirect(req.getContextPath() + "/admin/user/list?error=Không thể tự khóa tài khoản đang đăng nhập");
-            return;
+    @Override protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        try {
+            User account = (User) req.getSession(false).getAttribute("account");
+            int id = Integer.parseInt(req.getParameter("id")); boolean active = Boolean.parseBoolean(req.getParameter("active"));
+            userService.changeActiveByAdmin(account, id, active);
+            FlashMessage.success(req, "Cập nhật trạng thái thành công.");
+            resp.sendRedirect(req.getContextPath() + "/admin/user/list");
+        } catch (Exception e) {
+            getServletContext().log("Toggle user failed", e);
+            FlashMessage.error(req, e.getMessage() == null ? "Không thể cập nhật trạng thái." : e.getMessage());
+            resp.sendRedirect(req.getContextPath() + "/admin/user/list");
         }
-        userService.updateActive(id, Boolean.parseBoolean(req.getParameter("active")));
-        resp.sendRedirect(req.getContextPath() + "/admin/user/list?message=Cập nhật trạng thái thành công");
     }
 }

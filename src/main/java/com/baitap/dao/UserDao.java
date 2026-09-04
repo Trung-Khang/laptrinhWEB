@@ -20,4 +20,8 @@ public interface UserDao {
     void update(User user);
 
     void updateActive(int id, boolean active);
+
+    boolean existsEmailExceptId(String email, int id);
+
+    int countActiveAdmins();
 }

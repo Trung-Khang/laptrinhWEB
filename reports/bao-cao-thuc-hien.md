@@ -466,3 +466,80 @@ mvn clean package -DskipTests
 ```
 
 Ket qua: BUILD SUCCESS luc 23:16 ngay 04/09/2026.
+
+## Bo sung 2026-09-04: dang nhap, dang ky, phan quyen va quan ly nguoi dung
+
+### Nguyen nhan goc
+
+- `LoginController` chuyen moi tai khoan den `/admin/category/list`, nen CUSTOMER nhan 403 ngay sau khi dang nhap.
+- `UserDaoImpl` fallback am tham sang `DB_LapTrinhWeb`, trong khi dang ky va danh sach admin dung `ShoppingServiceMVC`.
+- DAO nuot exception SQL, controller van redirect va tao ra trang trang/kho truy vet.
+- Controller user dua thong bao tieng Viet thang vao URL redirect. Tomcat tra HTTP 302 nhung khong co `Location` hop le.
+- Role xu ly rai rac theo magic number; MANAGER chua co quy tac thong nhat.
+
+### Quy uoc role cuoi cung
+
+| Role | Gia tri | Quyen sau dang nhap |
+|---|---:|---|
+| ADMIN | 1 | Toan bo `/admin/*`, bao gom quan ly nguoi dung |
+| MANAGER | 2 | Danh muc, san pham, don hang, thong ke; khong vao `/admin/user/*` |
+| CUSTOMER | 3 | `/home`; vao truc tiep `/admin/*` nhan 403 |
+
+Tat ca module hien dung duy nhat `ShoppingServiceMVC`: JDBC login/register/user-admin, JPA, va DAO category/product/order/statistics. Fallback sang `DB_LapTrinhWeb` da bi xoa khoi source. File `DB_LapTrinhWeb.sql` chi la script legacy, khong chay cho ung dung nay.
+
+### File da sua/them
+
+- Controller: `LoginController`, `RegisterController`, `LogoutController`, `HomeController`, va bon `AdminUser*Controller`.
+- Security: `AdminAuthFilter`, `CharacterEncodingFilter`, `UserRole`, `LoginRedirect`, `FlashMessage`.
+- Data layer: `UserDao`, `UserDaoImpl`, `UserService`, `UserServiceImpl`, `User`.
+- JSP: login/register/home/access-denied va ba JSP quan ly user.
+- `sql/ShoppingServiceMVC.sql`, `pom.xml`, `src/test/java/com/baitap/util/LoginRedirectTest.java`.
+
+### CSDL va migration
+
+Da chay that `sql/ShoppingServiceMVC.sql` tren SQL Server `TrungKhang-laptop\SQLEXPRESS`, database `ShoppingServiceMVC`.
+
+- Them idempotent migration cho `dbo.[User]`: `id`, `email`, `username`, `fullname`, `password`, `avatar`, `roleid`, `phone`, `createddate`, `active`.
+- Co unique index username; email duoc tao unique index khi du lieu hien co khong trung.
+- Seed va chuan hoa `admin / 123` (1), `manager / 123` (2), `user / 123` (3), deu active.
+- Khong drop database/bang va khong xoa du lieu cu.
+
+Chay SQL UTF-8 bang lenh sau:
+
+```powershell
+sqlcmd -f 65001 -S 127.0.0.1,52282 -U sa -P trungkhang -i sql\ShoppingServiceMVC.sql -b -r 1
+```
+
+Mot lan chay thu truoc khi bo sung `-f 65001` da tao vai category ten loi ma hoa. Cac ban ghi nay duoc giu lai de khong vi pham yeu cau khong xoa du lieu cu; cac lan sau phai dung `-f 65001`.
+
+### Kiem thu da chay
+
+| # | Truong hop | Ket qua |
+|---:|---|---|
+| 1 | `admin / 123` vao admin | Dat, HTTP 302 toi `/admin/category/list` |
+| 2 | `manager / 123` dang nhap | Dat, HTTP 302 toi `/admin/category/list` |
+| 3 | `user / 123` dang nhap | Dat, HTTP 302 toi `/home` |
+| 4 | CUSTOMER vao truc tiep admin | Dat, HTTP 403 |
+| 5 | Dang ky username moi | Dat voi `verify_customer` |
+| 6 | Account dang ky role/active dung | Dat, SQL tra `roleid=3`, `active=1` |
+| 7 | Account moi dang nhap | Dat, redirect `/home` |
+| 8 | Dang ky trung username | Dat, form hien thi loi |
+| 9 | Danh sach admin user | Dat, HTTP 200 co du user seed va user test |
+| 10 | ADMIN them CUSTOMER | Dat |
+| 11 | ADMIN them MANAGER | Dat |
+| 12 | MANAGER moi dang nhap | Dat, redirect admin category |
+| 13 | Khoa CUSTOMER | Dat, login hien loi |
+| 14 | Mo khoa CUSTOMER | Dat, login redirect `/home` |
+| 15 | Thao tac user khong lam mat session ADMIN | Dat |
+| 16 | Logout roi truy cap admin | Dat, redirect `/login` |
+| 17 | Maven | Dat: `mvn clean test` va `mvn clean package`; 3 JUnit tests pass |
+
+### Deploy lai WAR
+
+```powershell
+mvn clean package
+```
+
+WAR nam tai `target/dangnhap.war`. VS Code Tomcat extension cua may hien tai da dong bo file nay vao `C:\apache-tomcat-11.0.25\webapps\dangnhap.war`; neu may khong tu dong bo, redeploy file nay qua muc Servers. Mo `http://localhost:8080/dangnhap/login` va hard refresh `Ctrl+F5`.
+
+Mat khau van luu plain text de tuong thich du lieu `123` hien co. Can migration rieng neu sau nay nang cap sang BCrypt.

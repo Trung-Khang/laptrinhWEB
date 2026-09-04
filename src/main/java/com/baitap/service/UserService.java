@@ -22,4 +22,12 @@ public interface UserService {
     void update(User user);
 
     void updateActive(int id, boolean active);
+
+    void registerPublic(User user);
+
+    void createByAdmin(User user);
+
+    void updateByAdmin(User user);
+
+    void changeActiveByAdmin(User actor, int targetId, boolean active);
 }

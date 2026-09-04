@@ -27,6 +27,7 @@ public class User {
         this.roleid = roleid;
         this.phone = phone;
         this.createdDate = createdDate;
+        this.active = true;
     }
 
     public User(String userName, String password) {

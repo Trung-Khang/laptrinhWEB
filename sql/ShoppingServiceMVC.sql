@@ -14,6 +14,60 @@ GO
 USE ShoppingServiceMVC;
 GO
 
+-- 10. User migration: login, register and admin-user management use this database only.
+IF OBJECT_ID(N'dbo.[User]', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.[User]
+    (
+        id INT IDENTITY(1,1) NOT NULL CONSTRAINT PK_User PRIMARY KEY,
+        email NVARCHAR(255) NOT NULL,
+        username NVARCHAR(100) NOT NULL,
+        fullname NVARCHAR(255) NULL,
+        password NVARCHAR(255) NOT NULL,
+        avatar NVARCHAR(500) NULL,
+        roleid INT NOT NULL CONSTRAINT DF_User_roleid DEFAULT 3,
+        phone NVARCHAR(30) NULL,
+        createddate DATE NOT NULL CONSTRAINT DF_User_createddate DEFAULT CAST(GETDATE() AS DATE),
+        active BIT NOT NULL CONSTRAINT DF_User_active DEFAULT 1
+    );
+END
+GO
+
+IF COL_LENGTH(N'dbo.[User]', N'active') IS NULL
+    ALTER TABLE dbo.[User] ADD active BIT NOT NULL CONSTRAINT DF_User_active_migration DEFAULT 1;
+IF COL_LENGTH(N'dbo.[User]', N'roleid') IS NULL
+    ALTER TABLE dbo.[User] ADD roleid INT NOT NULL CONSTRAINT DF_User_roleid_migration DEFAULT 3;
+IF COL_LENGTH(N'dbo.[User]', N'createddate') IS NULL
+    ALTER TABLE dbo.[User] ADD createddate DATE NOT NULL CONSTRAINT DF_User_createddate_migration DEFAULT CAST(GETDATE() AS DATE);
+GO
+
+UPDATE dbo.[User] SET roleid = 3 WHERE roleid IS NULL OR roleid NOT IN (1, 2, 3);
+UPDATE dbo.[User] SET active = 1 WHERE active IS NULL;
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_User_username' AND object_id = OBJECT_ID(N'dbo.[User]'))
+    CREATE UNIQUE INDEX UX_User_username ON dbo.[User](username);
+IF NOT EXISTS (SELECT 1 FROM dbo.[User] GROUP BY email HAVING COUNT(*) > 1)
+   AND NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_User_email' AND object_id = OBJECT_ID(N'dbo.[User]'))
+    CREATE UNIQUE INDEX UX_User_email ON dbo.[User](email);
+GO
+
+IF NOT EXISTS (SELECT 1 FROM dbo.[User] WHERE username = N'admin')
+    INSERT INTO dbo.[User] (email, username, fullname, password, avatar, roleid, phone, createddate, active)
+    VALUES (N'admin@shop.local', N'admin', N'Quản trị viên', N'123', N'', 1, N'0900000001', CAST(GETDATE() AS DATE), 1);
+IF NOT EXISTS (SELECT 1 FROM dbo.[User] WHERE username = N'manager')
+    INSERT INTO dbo.[User] (email, username, fullname, password, avatar, roleid, phone, createddate, active)
+    VALUES (N'manager@shop.local', N'manager', N'Quản lý', N'123', N'', 2, N'0900000002', CAST(GETDATE() AS DATE), 1);
+IF NOT EXISTS (SELECT 1 FROM dbo.[User] WHERE username = N'user')
+    INSERT INTO dbo.[User] (email, username, fullname, password, avatar, roleid, phone, createddate, active)
+    VALUES (N'user@shop.local', N'user', N'Khách hàng mẫu', N'123', N'', 3, N'0900000003', CAST(GETDATE() AS DATE), 1);
+
+-- Normalize the three demonstration accounts on every migration run.
+UPDATE dbo.[User] SET email=N'admin@shop.local', fullname=N'Quản trị viên', password=N'123', roleid=1, active=1 WHERE username=N'admin';
+UPDATE dbo.[User] SET email=N'manager@shop.local', fullname=N'Quản lý', password=N'123', roleid=2, active=1 WHERE username=N'manager';
+UPDATE dbo.[User] SET email=N'user@shop.local', fullname=N'Khách hàng mẫu', password=N'123', roleid=3, active=1 WHERE username=N'user';
+GO
+
 -- 2. Tạo bảng Category (nếu chưa tồn tại)
 IF OBJECT_ID(N'dbo.Category', N'U') IS NULL
 BEGIN

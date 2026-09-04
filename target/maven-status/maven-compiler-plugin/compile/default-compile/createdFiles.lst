@@ -4,6 +4,7 @@ vn\iotstar\controller\CategoryListController.class
 vn\iotstar\controller\DownloadImageController.class
 vn\iotstar\controller\OrderDetailController.class
 com\baitap\service\impl\UserServiceImpl.class
+com\baitap\util\FlashMessage.class
 vn\iotstar\service\IProductService.class
 vn\iotstar\controller\CategoryAddController.class
 vn\iotstar\entity\OrderItem.class
@@ -30,8 +31,11 @@ vn\iotstar\controller\ProductDetailController.class
 com\baitap\controller\AdminUserListController.class
 vn\iotstar\dao\CategoryDao.class
 vn\iotstar\dao\ICategoryDao.class
+com\baitap\filter\CharacterEncodingFilter.class
 vn\iotstar\service\impl\OrderServiceImpl.class
+com\baitap\model\UserRole.class
 vn\iotstar\config\JpaConfig.class
+com\baitap\util\LoginRedirect.class
 vn\iotstar\entity\Product.class
 vn\iotstar\entity\Video.class
 com\baitap\connection\DBConnection.class
@@ -44,6 +48,7 @@ vn\iotstar\controller\ProductAddController.class
 vn\iotstar\controller\CategoryDeleteController.class
 vn\iotstar\entity\Category.class
 vn\iotstar\dao\ProductDao.class
+com\baitap\controller\HomeController.class
 com\baitap\controller\AdminUserEditController.class
 vn\iotstar\dao\IProductDao.class
 vn\iotstar\controller\OrderListController.class
