@@ -6,7 +6,7 @@ cách chạy:
 
 khi cập nhập code:
 
-Bạn bấm Stop Tomcat trong mục Servers.
+Stop Tomcat trong mục Servers.
 Build lại project (để tạo file .war mới chứa code đã sửa):
 Mở terminal gõ lại lệnh quen thuộc:
 
