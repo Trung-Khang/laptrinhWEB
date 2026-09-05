@@ -85,6 +85,18 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
+    public void updateProfile(User user) {
+        String sql = "UPDATE dbo.[User] SET email=?, fullname=?, phone=? WHERE id=?";
+        try (Connection conn = new DBConnection().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, user.getEmail());
+            ps.setString(2, user.getFullName());
+            ps.setString(3, user.getPhone());
+            ps.setInt(4, user.getId());
+            if (ps.executeUpdate() != 1) throw new IllegalArgumentException("Khong tim thay nguoi dung can cap nhat.");
+        } catch (Exception e) { throw dataAccess("Khong the cap nhat ho so nguoi dung.", e); }
+    }
+
+    @Override
     public void updateActive(int id, boolean active) {
         String sql = "UPDATE dbo.[User] SET active=? WHERE id=?";
         try (Connection conn = new DBConnection().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {

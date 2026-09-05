@@ -48,9 +48,16 @@
         .sidebar-brand {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 22px 20px;
+            justify-content: center;
+            padding: 24px 20px 20px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .sidebar-logo {
+            width: 190px;
+            height: 70px;
+            object-fit: contain;
+            display: block;
         }
 
         .sidebar-brand .brand-icon {
@@ -267,8 +274,9 @@
     <!-- ===== SIDEBAR ===== -->
     <aside class="sidebar">
         <div class="sidebar-brand">
-            <span class="brand-icon"><i class="fa-solid fa-bag-shopping"></i></span>
-            <span class="brand-text">Admin Panel<small>Quản trị cửa hàng</small></span>
+            <a href="${pageContext.request.contextPath}/admin/category/list" aria-label="KhangGear Admin">
+                <img class="sidebar-logo" src="${pageContext.request.contextPath}/assets/images/khanggear-logo.png" alt="KhangGear">
+            </a>
         </div>
 
         <div class="sidebar-user">
@@ -282,7 +290,7 @@
                         <c:otherwise>Admin</c:otherwise>
                     </c:choose>
                 </div>
-                <div class="user-role"><i class="fa-solid fa-circle" style="font-size:6px; vertical-align:middle;"></i>&nbsp;Administrator</div>
+                <div class="user-role"><i class="fa-solid fa-circle" style="font-size:6px; vertical-align:middle;"></i>&nbsp;${sessionScope.account.roleid == 1 ? 'Administrator' : sessionScope.account.roleid == 2 ? 'Manager' : 'Customer'}</div>
             </div>
         </div>
 

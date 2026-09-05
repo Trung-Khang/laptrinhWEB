@@ -32,6 +32,9 @@ public class Order {
     @Column(name = "phone", length = 20)
     private String phone;
 
+    @Column(name = "email", length = 150)
+    private String email;
+
     @Column(name = "shipping_address", length = 500)
     private String shippingAddress;
 
@@ -46,6 +49,12 @@ public class Order {
 
     @Column(name = "note", length = 500)
     private String note;
+
+    @Column(name = "payment_method", length = 30)
+    private String paymentMethod;
+
+    @Column(name = "payment_status", length = 30)
+    private String paymentStatus;
 
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<OrderItem> items = new ArrayList<>();
@@ -65,6 +74,8 @@ public class Order {
     public void setCustomerName(String customerName) { this.customerName = customerName; }
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
     public String getShippingAddress() { return shippingAddress; }
     public void setShippingAddress(String shippingAddress) { this.shippingAddress = shippingAddress; }
     public LocalDateTime getOrderDate() { return orderDate; }
@@ -75,6 +86,10 @@ public class Order {
     public void setStatus(String status) { this.status = status; }
     public String getNote() { return note; }
     public void setNote(String note) { this.note = note; }
+    public String getPaymentMethod() { return paymentMethod; }
+    public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
+    public String getPaymentStatus() { return paymentStatus; }
+    public void setPaymentStatus(String paymentStatus) { this.paymentStatus = paymentStatus; }
     public List<OrderItem> getItems() { return items; }
     public void setItems(List<OrderItem> items) { this.items = items; }
 }

@@ -13,4 +13,5 @@ public interface IProductDao {
     List<Product> search(String keyword, Integer categoryId, Boolean active, int page, int pageSize);
     long count(String keyword, Integer categoryId, Boolean active);
     boolean hasOrderItems(int productId);
+    void deactivate(int productId);
 }

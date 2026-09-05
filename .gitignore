@@ -1,32 +1,162 @@
-# Maven / Java build output
-/target/
+# ==============================================================================
+# 1. Frontend (React / Vite / Node.js)
+# ==============================================================================
+# Node dependencies
+node_modules/
+*/node_modules/
+.pnpm-store/
+.yarn/cache/
+.yarn/unplugged/
+
+# Vite & build output
+dist/
+dist-ssr/
+build/
+.vite/
+*/.vite/
+
+# Cache & logs
+.eslintcache
+.stylelintcache
+.prettiercache
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Frontend temporary assets / design screenshots
+frontend/public/assets/images/*.png
+frontend/public/assets/images/*.jpg
+frontend/public/assets/images/*.jpeg
+
+# ==============================================================================
+# 2. Java / Maven Build Output
+# ==============================================================================
+target/
+**/target/
 *.class
 *.war
 *.ear
 *.jar
+*.nar
+*.zip
+*.tar.gz
+*.rar
 
-# Runtime upload files
-/upload/
+# Maven release & backup files
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/.metals/
+.mvn/timing.properties
 
-# IDE / editor local settings
-/.vscode/
-/.idea/
-*.iml
-
-# OS files
-.DS_Store
-Thumbs.db
-desktop.ini
-
-# Logs and temporary files
+# ==============================================================================
+# 3. Server Runtime & Uploads (Apache Tomcat / Application)
+# ==============================================================================
+work/
+temp/
+logs/
+catalina.out
 *.log
 *.tmp
 *.temp
 
-# Local environment / secrets
+# Runtime user uploaded files
+upload/
+/upload/
+uploads/
+/uploads/
+
+# ==============================================================================
+# 4. IDEs & Code Editors
+# ==============================================================================
+# Visual Studio Code
+.vscode/
+*.code-workspace
+.history/
+
+# Eclipse IDE
+.classpath
+.project
+.settings/
+.metadata/
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+local.properties
+.loadpath
+.recommenders/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# NetBeans
+nbproject/private/
+nbbuild/
+nbdist/
+nbactions.xml
+nb-configuration.xml
+
+# ==============================================================================
+# 5. Environment Variables & Local Secrets
+# ==============================================================================
 .env
 .env.*
+!.env.example
+*.local
 *.properties.local
 
+# ==============================================================================
+# 6. Operating System Files (Windows, macOS, Linux)
+# ==============================================================================
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+desktop.ini
+$RECYCLE.BIN/
+*.lnk
 
-/reports/
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# ==============================================================================
+# 7. Temporary / Scratch files
+# ==============================================================================
+*.scratch
+*.bak
+*.old
+*.patch
+

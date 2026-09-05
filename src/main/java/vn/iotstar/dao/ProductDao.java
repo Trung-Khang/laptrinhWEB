@@ -128,6 +128,24 @@ public class ProductDao implements IProductDao {
         }
     }
 
+    @Override
+    public void deactivate(int productId) {
+        EntityManager em = JpaConfig.getEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+            em.createQuery("UPDATE Product p SET p.active = false WHERE p.id = :id")
+                    .setParameter("id", productId)
+                    .executeUpdate();
+            tx.commit();
+        } catch (RuntimeException e) {
+            if (tx.isActive()) tx.rollback();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
     private String buildSearchJpql(boolean count) {
         String select = count ? "SELECT COUNT(p)" : "SELECT p";
         String fetch = count ? "" : " JOIN FETCH p.category";

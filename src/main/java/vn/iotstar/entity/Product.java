@@ -26,7 +26,7 @@ public class Product {
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "name", nullable = false, length = 255)
+    @Column(name = "name", nullable = false, length = 255, columnDefinition = "NVARCHAR(255)")
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -42,7 +42,7 @@ public class Product {
     @Column(name = "stock_quantity", nullable = false)
     private Integer stockQuantity;
 
-    @Column(name = "image", length = 500)
+    @Column(name = "image", length = 500, columnDefinition = "NVARCHAR(500)")
     private String image;
 
     @Column(name = "active", nullable = false)

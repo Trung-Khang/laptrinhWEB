@@ -1,6 +1,8 @@
 package vn.iotstar.controller;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -32,8 +34,10 @@ public class ProductAddController extends ProductBaseController {
         try {
             Product product = readProduct(req, new Product());
             productService.insert(product);
-            resp.sendRedirect(req.getContextPath() + "/admin/product/list?message=Thêm sản phẩm thành công");
+            resp.sendRedirect(req.getContextPath() + "/admin/product/list?message="
+                    + URLEncoder.encode("Th\u00eam s\u1ea3n ph\u1ea9m th\u00e0nh c\u00f4ng.", StandardCharsets.UTF_8));
         } catch (Exception e) {
+            getServletContext().log("Add product failed", e);
             req.setAttribute("error", e.getMessage());
             req.setAttribute("categories", categoryService.findAll());
             req.getRequestDispatcher("/views/admin/add-product.jsp").forward(req, resp);

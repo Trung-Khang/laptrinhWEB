@@ -1,0 +1,11 @@
+import { ArrowRight, Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import ProductVisual from '../components/ProductVisual'
+import { money } from '../utils'
+import { useCart } from '../App'
+
+export default function CartPage() {
+  const { cart, updateCart, removeCart } = useCart()
+  if (cart.items.length === 0) return <div className="kg-page-width kg-empty-state kg-cart-empty"><ShoppingBag size={48} /><h1>Giỏ hàng đang trống</h1><p>Khám phá các thiết bị công nghệ phù hợp với setup của bạn.</p><Link className="kg-button kg-button-primary" to="/products">Khám phá sản phẩm</Link></div>
+  return <div className="kg-page-width kg-cart-page"><div className="kg-page-heading"><div><p className="kg-eyebrow">Giỏ hàng</p><h1>Chuẩn bị cho setup mới</h1></div><Link className="kg-text-link" to="/products">Tiếp tục mua sắm <ArrowRight size={17} /></Link></div><div className="kg-cart-layout"><section className="kg-cart-list">{cart.items.map(({ product, quantity, subtotal }) => <article className="kg-cart-row" key={product.id}><ProductVisual product={product} className="kg-cart-image" /><div className="kg-cart-product"><p>{product.category?.name}</p><Link to={`/products/${product.id}`}>{product.name}</Link><strong>{money(product.price)}</strong></div><div className="kg-quantity-control"><button onClick={() => updateCart(product.id, quantity - 1)} aria-label="Giảm"><Minus size={15} /></button><b>{quantity}</b><button disabled={quantity >= product.stockQuantity} onClick={() => updateCart(product.id, quantity + 1)} aria-label="Tăng"><Plus size={15} /></button></div><strong className="kg-cart-subtotal">{money(subtotal)}</strong><button className="kg-remove-item" onClick={() => removeCart(product.id)} aria-label="Xóa"><Trash2 size={18} /></button></article>)}</section><aside className="kg-order-summary"><h2>Tóm tắt đơn hàng</h2><div><span>Tạm tính</span><strong>{money(cart.total)}</strong></div><div><span>Phí vận chuyển</span><small>Chọn ở bước thanh toán</small></div><hr /><div className="kg-summary-total"><span>Tổng tạm tính</span><strong>{money(cart.total)}</strong></div><Link className="kg-button kg-button-primary" to="/checkout">Tiến hành thanh toán <ArrowRight size={18} /></Link><p>Giá và tồn kho sẽ được kiểm tra lại trước khi tạo đơn.</p></aside></div></div>
+}

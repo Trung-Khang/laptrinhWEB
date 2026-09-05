@@ -1,10 +1,4 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<!DOCTYPE html>
-<html lang="vi">
-<head><meta charset="UTF-8"><title>Trang chủ</title></head>
-<body>
-    <h2>Xin chào, ${sessionScope.account.fullName}</h2>
-    <p>Bạn đã đăng nhập thành công với tài khoản ${sessionScope.account.userName}.</p>
-    <a href="${pageContext.request.contextPath}/logout">Đăng xuất</a>
-</body>
-</html>
+<%@ page import="com.baitap.model.User" %>
+<% User account = (User) session.getAttribute("account"); %>
+<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>KhangGear</title><style>body{margin:0;font-family:Arial;background:#f4f6f9}.home-header{position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;padding:16px 6%;background:#fff;box-shadow:0 1px 8px #0002}.home-header a{color:#c9283e;text-decoration:none;border:1px solid #c9283e;border-radius:5px;padding:8px 12px}.home-main{max-width:760px;margin:70px auto;padding:0 20px}</style></head><body><header class="home-header"><strong>KhangGear</strong><a href="<%=request.getContextPath()%>/logout">Đăng xuất</a></header><main class="home-main"><h1>Xin chào, <%=account.getFullName()%></h1><p>Bạn đã đăng nhập thành công với tài khoản <%=account.getUserName()%>.</p></main></body></html>

@@ -20,6 +20,16 @@ public class UserServiceImpl implements UserService {
     @Override public List<User> search(String keyword, Integer roleid, Boolean active) { return userDao.search(keyword, roleid, active); }
     @Override public User findById(int id) { return userDao.findById(id); }
     @Override public void update(User user) { userDao.update(user); }
+    @Override
+    public void updateProfile(User user) {
+        User stored = userDao.findById(user.getId());
+        if (stored == null) throw new IllegalArgumentException("Khong tim thay nguoi dung.");
+        normalize(user);
+        if (isBlank(user.getFullName())) throw new IllegalArgumentException("Vui long nhap ho va ten.");
+        if (isBlank(user.getEmail()) || !isEmail(user.getEmail())) throw new IllegalArgumentException("Email khong hop le.");
+        if (userDao.existsEmailExceptId(user.getEmail(), user.getId())) throw new IllegalArgumentException("Email da ton tai.");
+        userDao.updateProfile(user);
+    }
     @Override public void updateActive(int id, boolean active) { userDao.updateActive(id, active); }
 
     @Override

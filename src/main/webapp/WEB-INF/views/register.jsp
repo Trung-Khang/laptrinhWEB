@@ -1,15 +1,4 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><title>Đăng ký</title></head><body>
-<h2>Đăng ký tài khoản</h2>
-<c:if test="${not empty error}"><p style="color:red"><c:out value="${error}"/></p></c:if>
-<form action="${pageContext.request.contextPath}/register" method="post">
-  <label>Tên đăng nhập <input name="username" required value="${formUser.userName}"></label><br><br>
-  <label>Mật khẩu <input name="password" type="password" required></label><br><br>
-  <label>Email <input name="email" type="email" required value="${formUser.email}"></label><br><br>
-  <label>Họ và tên <input name="fullname" value="${formUser.fullName}"></label><br><br>
-  <label>Số điện thoại <input name="phone" value="${formUser.phone}"></label><br><br>
-  <button type="submit">Đăng ký</button>
-</form>
-<p><a href="${pageContext.request.contextPath}/login">Đã có tài khoản? Đăng nhập</a></p>
-</body></html>
+<%@ page import="com.baitap.model.User" %>
+<% User formUser = (User) request.getAttribute("formUser"); %>
+<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Đăng ký | KhangGear</title><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"><link rel="stylesheet" href="<%=request.getContextPath()%>/assets/css/auth.css"></head><body class="auth-page"><main class="auth-overlay"><section class="auth-card"><img class="auth-brand" src="<%=request.getContextPath()%>/assets/images/khanggear-logo.png" alt="KhangGear"><h1>Đăng ký</h1><p class="auth-subtitle">Tạo tài khoản KhangGear của bạn</p><% if (request.getAttribute("error") != null) { %><p class="auth-alert"><%=request.getAttribute("error")%></p><% } %><form action="<%=request.getContextPath()%>/register" method="post"><div class="auth-field"><label>Tên đăng nhập</label><div class="input-wrap"><i class="fa-solid fa-user"></i><input name="username" required value="<%=formUser == null ? "" : formUser.getUserName()%>"></div></div><div class="auth-field"><label>Họ và tên</label><div class="input-wrap"><i class="fa-solid fa-id-card"></i><input name="fullname" value="<%=formUser == null ? "" : formUser.getFullName()%>"></div></div><div class="auth-field"><label>Email</label><div class="input-wrap"><i class="fa-solid fa-envelope"></i><input name="email" type="email" required value="<%=formUser == null ? "" : formUser.getEmail()%>"></div></div><div class="auth-field"><label>Số điện thoại</label><div class="input-wrap"><i class="fa-solid fa-phone"></i><input name="phone" value="<%=formUser == null ? "" : formUser.getPhone()%>"></div></div><div class="auth-field"><label>Mật khẩu</label><div class="input-wrap"><i class="fa-solid fa-lock"></i><input id="password" name="password" type="password" required><button class="password-toggle" type="button" data-password-toggle="password" aria-label="Hiện mật khẩu"><i class="fa-solid fa-eye"></i></button></div></div><button class="auth-submit" type="submit">Đăng ký</button></form><p class="auth-footer">Đã có tài khoản? <a href="<%=request.getContextPath()%>/login">Đăng nhập</a></p></section></main><script src="<%=request.getContextPath()%>/assets/js/auth.js"></script></body></html>

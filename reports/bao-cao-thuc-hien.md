@@ -2,6 +2,19 @@
 
 Ngay lap bao cao: 04/09/2026
 
+## Cap nhat 05-09-2026: can giua noi dung hero storefront
+
+- Da can lai cum noi dung hero o trang user `frontend/src/styles/storefront.css`: them padding trai responsive va gioi han do rong khoi chu de doan tu `KHANGGEAR CHOICE 2026` den hai nut `Kham pha san pham`, `Xem danh muc` khong con sat le trai cua anh nen.
+- Mobile van giu layout rong 100% va padding rieng de khong bi tran chu.
+- Da build lai storefront bang `npm run build`, bundle moi da nam trong `src/main/webapp/storefront/`.
+
+## Cap nhat 05-09-2026: sua loi font tieng Viet du lieu admin/manager
+
+- Nguyen nhan: giao dien admin render UTF-8 dung, nhung cot `dbo.products.name` trong database cu dang la `varchar(255)` nen ten san pham co dau bi mat dau thanh `?`.
+- Da sua entity `Product`: `name` dung `NVARCHAR(255)`, `image` dung `NVARCHAR(500)`.
+- Da cap nhat va chay `sql/04-fix-vietnamese-question-marks.sql` tren database `ShoppingServiceMVC`: doi `products.name/image` sang `nvarchar`, sua `Tay cam Xbox Wireless` va `ban phim Aula f87 tao thu test`.
+- Kiem tra DB sau khi chay: `products.name` la `nvarchar(255)`, khong con ten san pham chua ky tu `?`.
+
 ## 1. Pham vi da doc
 
 Da mo va ra soat cac thanh phan chinh cua du an:
@@ -543,3 +556,124 @@ mvn clean package
 WAR nam tai `target/dangnhap.war`. VS Code Tomcat extension cua may hien tai da dong bo file nay vao `C:\apache-tomcat-11.0.25\webapps\dangnhap.war`; neu may khong tu dong bo, redeploy file nay qua muc Servers. Mo `http://localhost:8080/dangnhap/login` va hard refresh `Ctrl+F5`.
 
 Mat khau van luu plain text de tuong thich du lieu `123` hien co. Can migration rieng neu sau nay nang cap sang BCrypt.
+
+## Cap nhat 05-09-2026: sua ma hoa va dong bo giao dien
+
+### Da thuc hien
+
+- Xac dinh loi tieng Viet o `/admin/statistics` den tu du lieu `Category` bi mojibake, khong phai do cau truy van `StatisticsDao`.
+- Them `sql/02-normalize-category-encoding.sql`: migration idempotent, co `XACT_ABORT` va transaction. Script doi ten category neu chua co ban dung; neu da co thi chuyen khoa ngoai `products.category_id`, `videos.categoryId`, sau do xoa category loi.
+- Da chay migration tren `ShoppingServiceMVC` bang UTF-8 (`sqlcmd -f 65001`). Nam category loi da duoc hop nhat: Dien thoai, Ban phim, Chuot, Man hinh, Phu kien. Kiem tra sau migration cho thay du lieu san pham van con day du; dot du lieu hien tai khong co product/video nao can chuyen khoa ngoai.
+- Them `CharacterEncodingFilter` truoc do da dam bao request/response UTF-8; JSP Statistics co `pageEncoding`/`meta charset` UTF-8 va render chuoi truc tiep, khong dung chuoi chua mojibake.
+- Them layout admin dung chung: `views/admin/fragments/header.jsp`, `views/admin/fragments/sidebar.jsp`, `assets/css/admin-layout.css`. Trang Statistics, danh sach/them nguoi dung va form them/sua san pham da dung fragment nay; layout co sticky header, logo KhangGear, menu theo role va nut dang xuat.
+- Them logo `assets/images/khanggear-logo.png`, anh nen cuc bo `assets/images/auth-background.png`, `assets/css/auth.css`, `assets/js/auth.js`; cap nhat `login.jsp`, `register.jsp`, `home.jsp` theo giao dien KhangGear. Tat ca van giu nguyen endpoint, method POST va ten field dang nhap/dang ky cu.
+
+### Cach cap nhat database
+
+Khong chay lai toan bo `ShoppingServiceMVC.sql` neu database da ton tai va dang co du lieu. Mo terminal tai thu muc project va chay:
+
+```powershell
+sqlcmd -f 65001 -S 127.0.0.1,52282 -U sa -P trungkhang -i sql\02-normalize-category-encoding.sql -b -r 1
+```
+
+Tham so `-f 65001` bat buoc de chuoi tieng Viet trong file SQL duoc gui dung ma hoa. Script co the chay lai an toan.
+
+### Kiem thu
+
+- `mvn clean test`: thanh cong, 3/3 test `LoginRedirectTest` qua.
+- `mvn clean package`: thanh cong, WAR moi tai `target/dangnhap.war`.
+- Da dong bo WAR moi vao `C:\apache-tomcat-11.0.25\webapps\dangnhap.war`.
+- Chua the kiem thu HTTP tren Tomcat trong phien nay: Catalina dang co `-agentlib:jdwp=...suspend=y`, vi vay JVM dung cho debugger truoc khi mo cong 8080. Hay attach debugger hoac bo `suspend=y`, sau do mo `/login` va `/admin/statistics` de kiem tra giao dien trong browser.
+
+## Cap nhat 05-09-2026: tinh chinh giao dien logo va dang nhap
+
+### Da thuc hien
+
+- Doi khung dang nhap/dang ky sang nen xam den, chu trang, input toi mau va subtitle mau sang de logo KhangGear khong bi chim tren nen trang.
+- Tang kich thuoc hien thi logo tren form dang nhap/dang ky va them bong do nhe de logo ro hon.
+- Thay cum "Admin Panel / Quan tri cua hang" bang logo KhangGear o sidebar cac trang danh muc/san pham con dang dung layout cu:
+  - `src/main/webapp/views/admin/list-category.jsp`
+  - `src/main/webapp/views/admin/add-category.jsp`
+  - `src/main/webapp/views/admin/edit-category.jsp`
+  - `src/main/webapp/views/admin/list-product.jsp`
+- Sua va dong bo `src/main/webapp/views/admin/detail-product.jsp`: het loi font tieng Viet, dung sidebar/header chung co logo KhangGear.
+
+### File da sua
+
+- `src/main/webapp/assets/css/auth.css`
+- `src/main/webapp/views/admin/list-category.jsp`
+- `src/main/webapp/views/admin/add-category.jsp`
+- `src/main/webapp/views/admin/edit-category.jsp`
+- `src/main/webapp/views/admin/list-product.jsp`
+- `src/main/webapp/views/admin/detail-product.jsp`
+
+### Kiem thu
+
+- Da chay `mvn clean package -DskipTests`: BUILD SUCCESS luc 13:29 ngay 05/09/2026.
+- Da copy WAR moi sang `C:\apache-tomcat-11.0.25\webapps\dangnhap.war`.
+
+## Cap nhat 05-09-2026: storefront React cho khach hang
+
+### Da thuc hien
+
+- Tao React/Vite app rieng trong `frontend/`, dung React Router va Lucide React; CSS storefront chi nam trong `frontend/src/styles/storefront.css` va toan bo class bat dau bang `kg-`.
+- Hoan thanh cac route `/home`, `/products`, `/products/:id`, `/cart`, `/checkout`, `/account/profile`, `/account/orders`, `/account/orders/:id`.
+- Them header KhangGear, tim kiem, menu responsive, badge gio hang, cart drawer va nut dang xuat dung endpoint `/logout` hien co.
+- Them REST API DTO an toan duoi `/api/storefront/*` va `/api/account/*`; API khong serialize JPA entity truc tiep va khong tra password.
+- Gio hang luu theo HTTP session. Server kiem tra san pham, active, stock va khong cho gio hang vuot ton kho.
+- Checkout CUSTOMER chay trong mot JPA transaction: lock san pham, tinh lai gia/tong tien tren server, tao `orders`/`order_items`, tru ton kho va rollback khi co loi.
+- Them profile API an toan, lich su/chi tiet don hang theo `user_id`, va huy don PENDING (hoan ton kho).
+- Tao `sql/03-storefront-checkout-migration.sql` idempotent. Da chay tren `ShoppingServiceMVC`: co them `orders.email`, `payment_method`, `payment_status` va index `IX_orders_user_id_order_date`; khong xoa bang hay du lieu cu.
+- Them `StorefrontCorsFilter` chi cho Vite origin `http://localhost:5173` va credentials khi development. Admin filter va JSP admin khong bi thay doi mapping.
+- Them tai lieu `docs/storefront-ui-spec.md`, `docs/storefront-api.md`, `docs/asset-manifest.md`.
+
+### Kiem thu
+
+- `npm run lint`: thanh cong.
+- `npm run build`: thanh cong; bundle duoc tao trong `src/main/webapp/storefront/`.
+- `mvn clean test`: thanh cong, 3/3 test hien co qua.
+- Da kiem tra SQL Server sau migration: ba cot checkout va index moi ton tai.
+- Da redeploy WAR va goi that tren Tomcat: categories, product list, featured, product detail va cart deu tra JSON HTTP 200; them/cap nhat/xoa cart session lan luot tra 201/200/200.
+- Chua co browser E2E va chua tao don checkout that trong phien nay de tranh phat sinh don mau/doi ton kho. Can dang nhap CUSTOMER trong browser, sau do kiem tra checkout va lich su don de xac nhan flow UI cuoi cung.
+
+## Cap nhat 05-09-2026: dong bo sidebar don hang va thong bao phan quyen
+
+### Da thuc hien
+
+- Chuyen `src/main/webapp/views/admin/list-order.jsp` sang layout admin chung, sidebar hien logo KhangGear thay cho cum "Admin Panel / Quan tri cua hang".
+- Chuyen `src/main/webapp/views/admin/detail-order.jsp` sang layout admin chung va sua font tieng Viet tren trang chi tiet don hang.
+- Sua `src/main/webapp/views/admin/fragments/sidebar.jsp` va `src/main/webapp/views/admin/fragments/header.jsp` ve UTF-8 chuan.
+- Sua cac sidebar cu con lai cua danh muc/san pham de role hien theo tai khoan dang nhap: ADMIN hien Administrator, MANAGER hien Manager, CUSTOMER hien Customer.
+- Sua `AdminAuthFilter` de khi MANAGER vao `/admin/user/*` thi truyen ly do bi chan sang JSP.
+- Lam lai `WEB-INF/views/access-denied.jsp`: hien thong bao rieng "Vi ban la Manager nen ban khong co quyen vao chuc nang Quan ly nguoi dung", kem nut quay ve trang phu hop.
+
+### Kiem thu
+
+- Da chay `mvn clean package -DskipTests`: BUILD SUCCESS luc 13:47 ngay 05/09/2026.
+- Da copy WAR moi sang `C:\apache-tomcat-11.0.25\webapps\dangnhap.war`.
+## Cập nhật 05-09-2026: sửa storefront UTF-8, logo, icon danh mục và CRUD sản phẩm
+
+- Nguyên nhân lỗi tiếng Việt storefront: một số chuỗi trong React source/bundle bị mojibake từ lần chỉnh trước. Đã thay các chuỗi hiển thị trong `frontend/src` bằng chuỗi Unicode an toàn, build lại Vite và kiểm tra output production không còn `�`, `Ã`, `Â`, `Ä`, `áº`, `á»`.
+- Nguyên nhân logo khó nhìn: logo KhangGear phiên bản sáng đặt trên header trắng. Đã chỉnh CSS đặt logo trong nền navy, giữ `object-fit: contain`, không dùng filter và không kéo méo ảnh.
+- Nguyên nhân icon Category không đồng bộ: API chỉ trả `icon` thô nên storefront phải fallback Lucide. Đã bổ sung `iconUrl` trong `CategoryDto`, map từ trường `Category.icons` qua `/image?fname=...` có context path `/dangnhap` và cache-busting theo `lastModified`.
+- Đã sửa `DownloadImageController` để normalize đường dẫn trong `Constant.DIR`, chặn path traversal, trả MIME type theo file thật và 404 hợp lệ khi thiếu file.
+- Đã sửa `HomePage` để category card ưu tiên `category.iconUrl`; nếu ảnh lỗi thì fallback sang icon Lucide chuyên nghiệp.
+- Nguyên nhân trang trắng sau CRUD Product: nút xóa dùng link GET và `ProductDeleteController` xử lý delete bằng `doGet`. Đã đổi delete sang POST, GET redirect về list, thông báo add/edit/delete được URL-encode UTF-8 và controller có log exception.
+- Đã sửa các controller: `ProductAddController`, `ProductEditController`, `ProductDeleteController`, `ProductServiceImpl`, `StorefrontCatalogApiController`, `BaseApiServlet`, `StorefrontMapper`.
+- Đã đổi nút xóa ở `list-product.jsp` thành form POST có hidden `id`.
+- README đã dịch block `KhangGear Storefront React` sang tiếng Việt, giữ nguyên route, endpoint và công nghệ.
+- Kiểm thử đã chạy: `npm run lint`, `npm run build`, quét ký tự lỗi trong `frontend/src`, `frontend/public`, `src/main/webapp/storefront`.
+- Kiểm thử backend đã chạy: `mvn clean test` pass 3/3 test, `mvn clean package -DskipTests` build WAR thành công.
+- Kiểm thử trên Tomcat thật: `/dangnhap/home` HTTP 200, title tiếng Việt đúng; `/api/storefront/categories` HTTP 200, `Content-Type` có charset UTF-8 và có `iconUrl`; logo static HTTP 200; icon category upload mẫu HTTP 200.
+- Kiểm thử CRUD Product bằng session admin thật: POST add/edit/delete đều redirect về `/admin/product/list?message=...`; product test đã được xóa khỏi database, không còn trang trắng.
+- Chưa kiểm thử được bằng browser automation ở đủ 1440/1024/768/390 vì môi trường hiện tại không có Playwright/browser-control khả dụng trong phiên này; đã kiểm qua HTTP thật và bundle production.
+## Cập nhật 05-09-2026: sửa xóa danh mục, lịch sử sản phẩm, đơn hàng và storefront
+
+- Xóa danh mục nay dùng POST, bắt lỗi khóa ngoại và quay lại danh sách với thông báo rõ ràng thay vì trả HTTP 500.
+- Danh sách đơn hàng tải `order_items` trước khi đóng `EntityManager` và hiển thị tên sản phẩm cùng số lượng ngay trên từng dòng đơn.
+- Sản phẩm chưa phát sinh đơn vẫn được xóa. Sản phẩm đã có trong lịch sử đơn hàng được chuyển sang trạng thái `Ngừng bán` để giữ nguyên dữ liệu đơn hàng.
+- Bỏ mục và khu vực `Build your setup` khỏi storefront.
+- Link `Danh mục` ở mọi trang luôn điều hướng về `/home#categories` và tự cuộn đúng vị trí.
+- Danh mục storefront hiển thị toàn bộ dữ liệu theo hàng cuộn ngang, phù hợp khi admin/manager thêm nhiều danh mục.
+- Hero trang chủ dùng ảnh setup làm background toàn khối và đặt nội dung trực tiếp lên ảnh.
+- Đã chạy `npm run lint`, `npm run build` và `mvn clean package -DskipTests` thành công.

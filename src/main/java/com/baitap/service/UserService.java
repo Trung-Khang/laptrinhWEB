@@ -21,6 +21,8 @@ public interface UserService {
 
     void update(User user);
 
+    void updateProfile(User user);
+
     void updateActive(int id, boolean active);
 
     void registerPublic(User user);

@@ -25,6 +25,9 @@ public class AdminAuthFilter implements Filter {
             resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
             String path = LoginRedirect.pathForRole(req.getContextPath(), account.getRoleid());
             req.setAttribute("returnPath", path.substring(req.getContextPath().length()));
+            if (userManagement && account.getRoleid() == UserRole.MANAGER) {
+                req.setAttribute("deniedReason", "MANAGER_USER_MANAGEMENT");
+            }
             req.getRequestDispatcher("/WEB-INF/views/access-denied.jsp").forward(req, resp);
             return;
         }

@@ -1,6 +1,8 @@
 package vn.iotstar.controller;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -21,17 +23,28 @@ public class CategoryDeleteController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String idParam = req.getParameter("id");
-        if (idParam != null && !idParam.trim().isEmpty()) {
-            int id = Integer.parseInt(idParam);
-            categoryService.delete(id);
-        }
-        resp.sendRedirect(req.getContextPath() + "/admin/category/list");
+        deleteAndRedirect(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        doGet(req, resp);
+        deleteAndRedirect(req, resp);
+    }
+
+    private void deleteAndRedirect(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String parameter = "message";
+        String message = "Xóa danh mục thành công.";
+        try {
+            categoryService.delete(Integer.parseInt(req.getParameter("id")));
+        } catch (NumberFormatException e) {
+            parameter = "error";
+            message = "Mã danh mục không hợp lệ.";
+        } catch (RuntimeException e) {
+            getServletContext().log("Không thể xóa danh mục đang được sử dụng", e);
+            parameter = "error";
+            message = "Không thể xóa danh mục vì vẫn còn sản phẩm thuộc danh mục này.";
+        }
+        resp.sendRedirect(req.getContextPath() + "/admin/category/list?" + parameter + "="
+                + URLEncoder.encode(message, StandardCharsets.UTF_8));
     }
 }
-

@@ -48,9 +48,16 @@
         .sidebar-brand {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 22px 20px;
+            justify-content: center;
+            padding: 24px 20px 20px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .sidebar-logo {
+            width: 190px;
+            height: 70px;
+            object-fit: contain;
+            display: block;
         }
 
         .sidebar-brand .brand-icon {
@@ -274,8 +281,9 @@
     <!-- ===== SIDEBAR ===== -->
     <aside class="sidebar">
         <div class="sidebar-brand">
-            <span class="brand-icon"><i class="fa-solid fa-bag-shopping"></i></span>
-            <span class="brand-text">Admin Panel<small>Quản trị cửa hàng</small></span>
+            <a href="${pageContext.request.contextPath}/admin/category/list" aria-label="KhangGear Admin">
+                <img class="sidebar-logo" src="${pageContext.request.contextPath}/assets/images/khanggear-logo.png" alt="KhangGear">
+            </a>
         </div>
 
         <div class="sidebar-user">
@@ -289,7 +297,7 @@
                         <c:otherwise>Admin</c:otherwise>
                     </c:choose>
                 </div>
-                <div class="user-role"><i class="fa-solid fa-circle" style="font-size:6px; vertical-align:middle;"></i>&nbsp;Administrator</div>
+                <div class="user-role"><i class="fa-solid fa-circle" style="font-size:6px; vertical-align:middle;"></i>&nbsp;${sessionScope.account.roleid == 1 ? 'Administrator' : sessionScope.account.roleid == 2 ? 'Manager' : 'Customer'}</div>
             </div>
         </div>
 
@@ -325,6 +333,8 @@
         </header>
 
         <main class="main-content">
+            <c:if test="${not empty param.message}"><div class="alert alert-success"><c:out value="${param.message}"/></div></c:if>
+            <c:if test="${not empty param.error}"><div class="alert alert-danger"><c:out value="${param.error}"/></div></c:if>
             <div class="card">
                 <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
                     <h5 class="mb-0 fw-semibold"><i class="fa-solid fa-table-list me-2 text-primary"></i>Danh mục sản phẩm</h5>
@@ -369,11 +379,12 @@
                                                class="btn btn-sm btn-outline-primary btn-icon me-1">
                                                 <i class="fa-solid fa-pen"></i> Sửa
                                             </a>
-                                            <a href="${pageContext.request.contextPath}/admin/category/delete?id=${cate.id}"
-                                               class="btn btn-sm btn-outline-danger btn-icon"
-                                               onclick="return confirm('Bạn có chắc muốn xóa danh mục này?');">
+                                            <form method="post" action="${pageContext.request.contextPath}/admin/category/delete" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa danh mục này?');">
+                                                <input type="hidden" name="id" value="${cate.id}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger btn-icon">
                                                 <i class="fa-solid fa-trash"></i> Xóa
-                                            </a>
+                                            </button>
+                                            </form>
                                         </td>
                                     </tr>
                                 </c:forEach>

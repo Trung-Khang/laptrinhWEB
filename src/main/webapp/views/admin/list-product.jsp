@@ -17,6 +17,8 @@
         body { font-family: var(--font-main); background: var(--content-bg); color: #334155; font-size: 14px; }
         .sidebar { position: fixed; top: 0; left: 0; width: var(--sidebar-width); height: 100vh; background: linear-gradient(180deg, #007bff 0%, #0056b3 100%); color: #fff; display: flex; flex-direction: column; z-index: 1040; box-shadow: 2px 0 14px rgba(0,0,0,.14); }
         .sidebar-brand, .sidebar-user { display: flex; align-items: center; gap: 12px; padding: 22px 20px; border-bottom: 1px solid rgba(255,255,255,.15); }
+        .sidebar-brand { justify-content: center; padding: 24px 20px 20px; }
+        .sidebar-logo { width: 190px; height: 70px; object-fit: contain; display: block; }
         .brand-icon, .avatar-circle { width: 46px; height: 46px; border-radius: 10px; background: rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; font-size: 20px; }
         .avatar-circle { border-radius: 50%; border: 2px solid #fff; }
         .brand-text { font-size: 18px; font-weight: 600; line-height: 1.2; }
@@ -45,8 +47,8 @@
 </head>
 <body>
 <aside class="sidebar">
-    <div class="sidebar-brand"><span class="brand-icon"><i class="fa-solid fa-bag-shopping"></i></span><span class="brand-text">Admin Panel<small>Quản trị cửa hàng</small></span></div>
-    <div class="sidebar-user"><div class="avatar-circle"><i class="fa-solid fa-user"></i></div><div><div class="user-name"><c:out value="${sessionScope.account.fullName}" default="Admin"/></div><div class="user-role">● Administrator</div></div></div>
+    <div class="sidebar-brand"><a href="${pageContext.request.contextPath}/admin/category/list" aria-label="KhangGear Admin"><img class="sidebar-logo" src="${pageContext.request.contextPath}/assets/images/khanggear-logo.png" alt="KhangGear"></a></div>
+    <div class="sidebar-user"><div class="avatar-circle"><i class="fa-solid fa-user"></i></div><div><div class="user-name"><c:out value="${sessionScope.account.fullName}" default="Admin"/></div><div class="user-role">● ${sessionScope.account.roleid == 1 ? 'Administrator' : sessionScope.account.roleid == 2 ? 'Manager' : 'Customer'}</div></div></div>
     <nav class="sidebar-menu">
         <div class="menu-label">Menu chính</div>
         <a href="${pageContext.request.contextPath}/admin/category/list" class="menu-item"><i class="fa-solid fa-layer-group"></i> Quản lý Danh mục</a>
@@ -94,7 +96,10 @@
                                 <td class="text-center">
                                     <a class="btn btn-sm btn-outline-info btn-icon" href="${pageContext.request.contextPath}/admin/product/detail?id=${p.id}"><i class="fa-solid fa-eye"></i> Xem</a>
                                     <a class="btn btn-sm btn-outline-primary btn-icon" href="${pageContext.request.contextPath}/admin/product/edit?id=${p.id}"><i class="fa-solid fa-pen"></i> Sửa</a>
-                                    <a class="btn btn-sm btn-outline-danger btn-icon" onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này?')" href="${pageContext.request.contextPath}/admin/product/delete?id=${p.id}"><i class="fa-solid fa-trash"></i> Xóa</a>
+                                    <form class="d-inline" method="post" action="${pageContext.request.contextPath}/admin/product/delete" onsubmit="return confirm('B&#7841;n c&#243; ch&#7855;c mu&#7889;n x&#243;a s&#7843;n ph&#7849;m n&#224;y?')">
+                                        <input type="hidden" name="id" value="${p.id}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger btn-icon"><i class="fa-solid fa-trash"></i> Xóa</button>
+                                    </form>
                                 </td>
                             </tr>
                         </c:forEach>

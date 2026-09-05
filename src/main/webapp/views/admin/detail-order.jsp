@@ -1,4 +1,88 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
-<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Chi tiết Đơn hàng | Admin</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"><style>body{background:#f4f6f9}.wrap{max-width:1050px;margin:32px auto}.card{border:0;border-radius:12px;box-shadow:0 4px 18px rgba(0,0,0,.06)}.thumb{width:56px;height:56px;object-fit:cover;border-radius:8px;background:#eef2f7}</style></head><body><main class="wrap"><div class="mb-3"><a href="${pageContext.request.contextPath}/admin/order/list" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i> Quay lại</a></div><c:if test="${not empty param.message}"><div class="alert alert-success"><c:out value="${param.message}"/></div></c:if><c:if test="${not empty param.error}"><div class="alert alert-danger"><c:out value="${param.error}"/></div></c:if><c:if test="${empty order}"><div class="alert alert-danger">Không tìm thấy đơn hàng.</div></c:if><c:if test="${not empty order}"><div class="card mb-3"><div class="card-body p-4"><div class="d-flex flex-wrap justify-content-between gap-3"><div><h4>Đơn hàng #${order.id}</h4><p class="mb-1"><strong>Khách hàng:</strong> <c:out value="${order.customerName}"/></p><p class="mb-1"><strong>SĐT:</strong> <c:out value="${order.phone}"/></p><p class="mb-1"><strong>Địa chỉ:</strong> <c:out value="${order.shippingAddress}"/></p><p class="mb-0"><strong>Ghi chú:</strong> <c:out value="${order.note}" default="Không có"/></p></div><div><p><strong>Ngày đặt:</strong> ${order.orderDate}</p><p><strong>Tổng tiền:</strong> <fmt:formatNumber value="${order.totalAmount}" type="number"/> đ</p><p><strong>Trạng thái:</strong> <span class="badge text-bg-secondary">${order.status}</span></p><form method="post" action="${pageContext.request.contextPath}/admin/order/update-status" class="d-flex gap-2" onsubmit="return confirm('Cập nhật trạng thái đơn hàng này?')"><input type="hidden" name="id" value="${order.id}"><select name="status" class="form-select form-select-sm"><c:forEach items="${statuses}" var="st"><option value="${st}" ${order.status == st ? 'selected' : ''}>${st}</option></c:forEach></select><button class="btn btn-primary btn-sm">Cập nhật</button></form></div></div></div></div><div class="card"><div class="card-header bg-white"><h5 class="mb-0">Sản phẩm trong đơn</h5></div><div class="card-body"><div class="table-responsive"><table class="table align-middle"><thead><tr><th>Ảnh</th><th>Sản phẩm</th><th>Danh mục</th><th>SL</th><th>Đơn giá</th><th>Thành tiền</th></tr></thead><tbody><c:forEach items="${order.items}" var="item"><tr><td><img class="thumb" src="https://placehold.co/80x80?text=SP" alt="product"></td><td><c:out value="${item.product.name}"/></td><td><c:out value="${item.product.category.name}"/></td><td>${item.quantity}</td><td><fmt:formatNumber value="${item.unitPrice}" type="number"/> đ</td><td><fmt:formatNumber value="${item.subtotal}" type="number"/> đ</td></tr></c:forEach><c:if test="${empty order.items}"><tr><td colspan="6" class="text-center text-muted py-4">Đơn hàng chưa có sản phẩm.</td></tr></c:if></tbody></table></div></div></div></c:if></main></body></html>
+<%
+    request.setAttribute("pageTitle", "Chi tiết đơn hàng");
+    request.setAttribute("activeMenu", "order");
+%>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết Đơn hàng | Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-layout.css">
+    <style>
+        .order-detail-wrap { max-width: 1050px; margin: 0 auto; }
+        .card { border: 0; border-radius: 8px; box-shadow: 0 4px 18px rgba(0,0,0,.06); }
+        .thumb { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; background: #eef2f7; }
+    </style>
+</head>
+<body>
+<div class="admin-layout">
+    <%@ include file="fragments/sidebar.jsp" %>
+    <div class="admin-main">
+        <%@ include file="fragments/header.jsp" %>
+        <main class="admin-content">
+            <div class="order-detail-wrap">
+                <div class="mb-3"><a href="${pageContext.request.contextPath}/admin/order/list" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i> Quay lại</a></div>
+                <c:if test="${not empty param.message}"><div class="alert alert-success"><c:out value="${param.message}"/></div></c:if>
+                <c:if test="${not empty param.error}"><div class="alert alert-danger"><c:out value="${param.error}"/></div></c:if>
+                <c:if test="${empty order}"><div class="alert alert-danger">Không tìm thấy đơn hàng.</div></c:if>
+
+                <c:if test="${not empty order}">
+                    <div class="card mb-3">
+                        <div class="card-body p-4">
+                            <div class="d-flex flex-wrap justify-content-between gap-3">
+                                <div>
+                                    <h4>Đơn hàng #${order.id}</h4>
+                                    <p class="mb-1"><strong>Khách hàng:</strong> <c:out value="${order.customerName}"/></p>
+                                    <p class="mb-1"><strong>SĐT:</strong> <c:out value="${order.phone}"/></p>
+                                    <p class="mb-1"><strong>Địa chỉ:</strong> <c:out value="${order.shippingAddress}"/></p>
+                                    <p class="mb-0"><strong>Ghi chú:</strong> <c:out value="${order.note}" default="Không có"/></p>
+                                </div>
+                                <div>
+                                    <p><strong>Ngày đặt:</strong> ${order.orderDate}</p>
+                                    <p><strong>Tổng tiền:</strong> <fmt:formatNumber value="${order.totalAmount}" type="number"/> đ</p>
+                                    <p><strong>Trạng thái:</strong> <span class="badge text-bg-secondary">${order.status}</span></p>
+                                    <form method="post" action="${pageContext.request.contextPath}/admin/order/update-status" class="d-flex gap-2" onsubmit="return confirm('Cập nhật trạng thái đơn hàng này?')">
+                                        <input type="hidden" name="id" value="${order.id}">
+                                        <select name="status" class="form-select form-select-sm"><c:forEach items="${statuses}" var="st"><option value="${st}" ${order.status == st ? 'selected' : ''}>${st}</option></c:forEach></select>
+                                        <button class="btn btn-primary btn-sm">Cập nhật</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header bg-white"><h5 class="mb-0">Sản phẩm trong đơn</h5></div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table align-middle">
+                                    <thead><tr><th>Ảnh</th><th>Sản phẩm</th><th>Danh mục</th><th>SL</th><th>Đơn giá</th><th>Thành tiền</th></tr></thead>
+                                    <tbody>
+                                    <c:forEach items="${order.items}" var="item">
+                                        <tr>
+                                            <td><img class="thumb" src="https://placehold.co/80x80?text=SP" alt="product"></td>
+                                            <td><c:out value="${item.product.name}"/></td>
+                                            <td><c:out value="${item.product.category.name}"/></td>
+                                            <td>${item.quantity}</td>
+                                            <td><fmt:formatNumber value="${item.unitPrice}" type="number"/> đ</td>
+                                            <td><fmt:formatNumber value="${item.subtotal}" type="number"/> đ</td>
+                                        </tr>
+                                    </c:forEach>
+                                    <c:if test="${empty order.items}"><tr><td colspan="6" class="text-center text-muted py-4">Đơn hàng chưa có sản phẩm.</td></tr></c:if>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </c:if>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

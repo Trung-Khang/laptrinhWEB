@@ -1,6 +1,8 @@
 package vn.iotstar.controller;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -32,15 +34,18 @@ public class ProductEditController extends ProductBaseController {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
         Integer id = parseInteger(req.getParameter("id"));
-        Product product = productService.findById(id);
+        Product product = id == null ? null : productService.findById(id);
         if (product == null) {
-            resp.sendRedirect(req.getContextPath() + "/admin/product/list?error=Không tìm thấy sản phẩm");
+            resp.sendRedirect(req.getContextPath() + "/admin/product/list?error="
+                    + URLEncoder.encode("Kh\u00f4ng t\u00ecm th\u1ea5y s\u1ea3n ph\u1ea9m.", StandardCharsets.UTF_8));
             return;
         }
         try {
             productService.update(readProduct(req, product));
-            resp.sendRedirect(req.getContextPath() + "/admin/product/list?message=Cập nhật sản phẩm thành công");
+            resp.sendRedirect(req.getContextPath() + "/admin/product/list?message="
+                    + URLEncoder.encode("C\u1eadp nh\u1eadt s\u1ea3n ph\u1ea9m th\u00e0nh c\u00f4ng.", StandardCharsets.UTF_8));
         } catch (Exception e) {
+            getServletContext().log("Edit product failed", e);
             req.setAttribute("error", e.getMessage());
             req.setAttribute("product", product);
             req.setAttribute("categories", categoryService.findAll());

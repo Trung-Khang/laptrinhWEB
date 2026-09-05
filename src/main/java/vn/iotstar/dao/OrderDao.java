@@ -18,7 +18,12 @@ public class OrderDao implements IOrderDao {
             bind(query, keyword, status);
             query.setFirstResult((page - 1) * pageSize);
             query.setMaxResults(pageSize);
-            return query.getResultList();
+            List<Order> orders = query.getResultList();
+            for (Order order : orders) {
+                order.getItems().size();
+                order.getItems().forEach(item -> item.getProduct().getName());
+            }
+            return orders;
         } finally {
             em.close();
         }

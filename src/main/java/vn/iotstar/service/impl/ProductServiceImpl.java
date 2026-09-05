@@ -26,9 +26,15 @@ public class ProductServiceImpl implements IProductService {
     @Override
     public void delete(int id) {
         if (productDao.hasOrderItems(id)) {
-            throw new IllegalStateException("Không thể xóa sản phẩm đã phát sinh đơn hàng.");
+            productDao.deactivate(id);
+            return;
         }
         productDao.delete(id);
+    }
+
+    @Override
+    public boolean hasOrderItems(int id) {
+        return productDao.hasOrderItems(id);
     }
 
     @Override
@@ -47,16 +53,16 @@ public class ProductServiceImpl implements IProductService {
     }
 
     private void validate(Product product) {
-        if (product == null) throw new IllegalArgumentException("Dữ liệu sản phẩm không hợp lệ.");
-        if (isBlank(product.getName())) throw new IllegalArgumentException("Vui lòng nhập tên sản phẩm.");
+        if (product == null) throw new IllegalArgumentException("D\u1eef li\u1ec7u s\u1ea3n ph\u1ea9m kh\u00f4ng h\u1ee3p l\u1ec7.");
+        if (isBlank(product.getName())) throw new IllegalArgumentException("Vui l\u00f2ng nh\u1eadp t\u00ean s\u1ea3n ph\u1ea9m.");
         if (product.getCategory() == null || product.getCategory().getId() == null) {
-            throw new IllegalArgumentException("Vui lòng chọn danh mục.");
+            throw new IllegalArgumentException("Vui l\u00f2ng ch\u1ecdn danh m\u1ee5c.");
         }
         if (product.getPrice() == null || product.getPrice().compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Giá sản phẩm không được âm.");
+            throw new IllegalArgumentException("Gi\u00e1 s\u1ea3n ph\u1ea9m kh\u00f4ng \u0111\u01b0\u1ee3c \u00e2m.");
         }
         if (product.getStockQuantity() == null || product.getStockQuantity() < 0) {
-            throw new IllegalArgumentException("Tồn kho không được âm.");
+            throw new IllegalArgumentException("T\u1ed3n kho kh\u00f4ng \u0111\u01b0\u1ee3c \u00e2m.");
         }
     }
 
