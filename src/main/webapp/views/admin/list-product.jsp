@@ -86,7 +86,7 @@
                         <tbody>
                         <c:forEach items="${products}" var="p" varStatus="s">
                             <tr>
-                                <td>${(page - 1) * 10 + s.index + 1}</td>
+                                <td>${(page - 1) * 6 + s.index + 1}</td>
                                 <td><c:choose><c:when test="${not empty p.image && (fn:startsWith(p.image, 'http://') || fn:startsWith(p.image, 'https://'))}"><img src="${p.image}" class="product-img" alt="${p.name}"></c:when><c:when test="${not empty p.image}"><c:url value="/image" var="img"><c:param name="fname" value="${p.image}"/></c:url><img src="${img}" class="product-img" alt="${p.name}"></c:when><c:otherwise><img src="https://placehold.co/80x80?text=No+Image" class="product-img" alt="No image"></c:otherwise></c:choose></td>
                                 <td class="fw-medium"><c:out value="${p.name}"/></td>
                                 <td><c:out value="${p.category.name}"/></td>
@@ -107,7 +107,10 @@
                         </tbody>
                     </table>
                 </div>
-                <c:if test="${totalPages > 1}"><nav><ul class="pagination pagination-sm justify-content-end"><c:forEach begin="1" end="${totalPages}" var="i"><li class="page-item ${i == page ? 'active' : ''}"><a class="page-link" href="?page=${i}&keyword=${param.keyword}&categoryId=${param.categoryId}&active=${param.active}">${i}</a></li></c:forEach></ul></nav></c:if>
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <small class="text-secondary">Tổng số: ${totalItems} sản phẩm</small>
+                    <c:if test="${totalPages > 1}"><nav aria-label="Phân trang sản phẩm"><ul class="pagination pagination-sm mb-0"><li class="page-item ${page <= 1 ? 'disabled' : ''}"><a class="page-link" href="?page=${page - 1}&keyword=${param.keyword}&categoryId=${param.categoryId}&active=${param.active}">Trước</a></li><c:forEach begin="1" end="${totalPages}" var="i"><li class="page-item ${i == page ? 'active' : ''}"><a class="page-link" href="?page=${i}&keyword=${param.keyword}&categoryId=${param.categoryId}&active=${param.active}">${i}</a></li></c:forEach><li class="page-item ${page >= totalPages ? 'disabled' : ''}"><a class="page-link" href="?page=${page + 1}&keyword=${param.keyword}&categoryId=${param.categoryId}&active=${param.active}">Sau</a></li></ul></nav></c:if>
+                </div>
             </div>
         </div>
     </main>

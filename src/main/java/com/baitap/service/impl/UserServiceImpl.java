@@ -7,12 +7,14 @@ import com.baitap.model.UserRole;
 import com.baitap.service.UserService;
 import java.sql.Date;
 import java.util.List;
+import com.baitap.security.PasswordUtil;
 
 public class UserServiceImpl implements UserService {
     private final UserDao userDao = new UserDaoImpl();
 
     @Override public User findByUsername(String username) { return userDao.findByUsername(username); }
-    @Override public boolean authenticate(String username, String password) { User user = userDao.findByUsername(username); return user != null && user.isActive() && user.getPassword().equals(password); }
+    @Override public User findByEmail(String email) { return userDao.findByEmail(email); }
+    @Override public boolean authenticate(String username, String password) { User user = userDao.findByUsername(username); return user != null && user.isActive() && user.isEmailVerified() && PasswordUtil.matches(password, user.getPassword()); }
     @Override public boolean checkExistEmail(String email) { return userDao.checkExistEmail(email); }
     @Override public boolean checkExistUsername(String username) { return userDao.checkExistUsername(username); }
     @Override public boolean checkExistPhone(String phone) { return userDao.checkExistPhone(phone); }
@@ -35,14 +37,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public void registerPublic(User user) {
         normalize(user); validateNewUser(user);
-        user.setRoleid(UserRole.CUSTOMER); user.setActive(true); user.setCreatedDate(new Date(System.currentTimeMillis()));
+        user.setPassword(PasswordUtil.hash(user.getPassword()));
+        user.setRoleid(UserRole.CUSTOMER); user.setActive(true); user.setEmailVerified(false); user.setCreatedDate(new Date(System.currentTimeMillis()));
         userDao.insert(user);
     }
 
     @Override
     public void createByAdmin(User user) {
         normalize(user); validateNewUser(user); validateRole(user.getRoleid());
-        user.setCreatedDate(new Date(System.currentTimeMillis())); userDao.insert(user);
+        user.setPassword(PasswordUtil.hash(user.getPassword()));
+        user.setEmailVerified(true); user.setCreatedDate(new Date(System.currentTimeMillis())); userDao.insert(user);
     }
 
     @Override
@@ -53,6 +57,7 @@ public class UserServiceImpl implements UserService {
         if (isBlank(user.getEmail()) || !isEmail(user.getEmail())) throw new IllegalArgumentException("Email không hợp lệ.");
         if (userDao.existsEmailExceptId(user.getEmail(), user.getId())) throw new IllegalArgumentException("Email đã tồn tại.");
         validateRole(user.getRoleid());
+        if (!isBlank(user.getPassword())) user.setPassword(PasswordUtil.hash(user.getPassword()));
         if (stored.getRoleid() == UserRole.ADMIN && stored.isActive() && (user.getRoleid() != UserRole.ADMIN || !user.isActive()) && userDao.countActiveAdmins() <= 1) {
             throw new IllegalArgumentException("Không thể hạ quyền hoặc khóa ADMIN cuối cùng.");
         }
@@ -66,6 +71,30 @@ public class UserServiceImpl implements UserService {
         if (actor.getId() == targetId && !active) throw new IllegalArgumentException("Không thể tự khóa tài khoản đang đăng nhập.");
         if (target.getRoleid() == UserRole.ADMIN && target.isActive() && !active && userDao.countActiveAdmins() <= 1) throw new IllegalArgumentException("Không thể khóa ADMIN cuối cùng.");
         userDao.updateActive(targetId, active);
+    }
+
+    @Override
+    public void deleteByAdmin(User actor, int targetId) {
+        if (actor == null || actor.getRoleid() != UserRole.ADMIN) throw new IllegalArgumentException("Chỉ ADMIN mới có quyền xóa người dùng.");
+        User target = userDao.findById(targetId);
+        if (target == null) throw new IllegalArgumentException("Không tìm thấy người dùng.");
+        if (actor.getId() == targetId) throw new IllegalArgumentException("Không thể tự xóa tài khoản đang đăng nhập.");
+        if (target.getRoleid() == UserRole.ADMIN && target.isActive() && userDao.countActiveAdmins() <= 1) {
+            throw new IllegalArgumentException("Không thể xóa ADMIN hoạt động cuối cùng.");
+        }
+        if (userDao.hasOrders(targetId)) {
+            throw new IllegalArgumentException("Không thể xóa tài khoản đã có lịch sử đơn hàng. Hãy khóa tài khoản thay vì xóa.");
+        }
+        userDao.delete(targetId);
+    }
+
+    @Override
+    public void resetPassword(int userId, String newPassword) {
+        if (isBlank(newPassword) || newPassword.length() < 6) throw new IllegalArgumentException("Mật khẩu mới phải có ít nhất 6 ký tự.");
+        User stored = userDao.findById(userId);
+        if (stored == null) throw new IllegalArgumentException("Không tìm thấy tài khoản.");
+        if (PasswordUtil.matches(newPassword, stored.getPassword())) throw new IllegalArgumentException("Mật khẩu mới không được trùng với mật khẩu hiện tại.");
+        userDao.updatePassword(userId, PasswordUtil.hash(newPassword));
     }
 
     private void validateNewUser(User user) {

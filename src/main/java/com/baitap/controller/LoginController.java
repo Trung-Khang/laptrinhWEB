@@ -4,6 +4,7 @@ import com.baitap.model.User;
 import com.baitap.service.UserService;
 import com.baitap.service.impl.UserServiceImpl;
 import com.baitap.util.LoginRedirect;
+import com.baitap.security.PasswordUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.Cookie;
@@ -37,8 +38,18 @@ public class LoginController extends HttpServlet {
         if (blank(username) || blank(password)) { showError(req, resp, "Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!", username); return; }
         try {
             User user = userService.findByUsername(username);
-            if (user == null || !user.isActive() || !user.getPassword().equals(password)) {
+            if (user == null || !PasswordUtil.matches(password, user.getPassword())) {
                 showError(req, resp, "Sai tên đăng nhập, mật khẩu hoặc tài khoản đã bị khóa!", username);
+                return;
+            }
+            if (!user.isEmailVerified()) {
+                req.getSession(true).setAttribute("registrationUserId", user.getId());
+                req.setAttribute("verificationRequired", true);
+                showError(req, resp, "Tài khoản chưa được xác minh. Vui lòng kiểm tra email để nhập mã OTP.", username);
+                return;
+            }
+            if (!user.isActive()) {
+                showError(req, resp, "Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên.", username);
                 return;
             }
             HttpSession oldSession = req.getSession(false);

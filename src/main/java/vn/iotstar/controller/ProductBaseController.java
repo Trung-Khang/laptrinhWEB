@@ -13,7 +13,7 @@ import vn.iotstar.entity.Product;
 import vn.iotstar.util.Constant;
 
 abstract class ProductBaseController extends HttpServlet {
-    protected static final int PAGE_SIZE = 10;
+    protected static final int PAGE_SIZE = 6;
 
     protected Product readProduct(HttpServletRequest req, Product product) throws IOException, jakarta.servlet.ServletException {
         if (product == null) product = new Product();

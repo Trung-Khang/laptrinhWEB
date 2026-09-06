@@ -17,7 +17,7 @@ public final class StorefrontDtos {
                              LocalDateTime createdAt, long soldQuantity) { }
 
     public record ProductPageDto(List<ProductDto> items, int page, int pageSize,
-                                 long totalItems, int totalPages) { }
+                                 long totalItems, int totalPages, boolean hasPrevious, boolean hasNext) { }
 
     public record CartItemDto(ProductDto product, int quantity, BigDecimal subtotal) { }
 

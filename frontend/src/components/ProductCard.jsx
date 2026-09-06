@@ -10,13 +10,13 @@ export default function ProductCard({ product, onAdd }) {
 
   return (
     <article className="kg-product-card">
-      <Link className="kg-product-visual-link" to={`/products/${product.id}`} aria-label={`Xem ${productName}`}>
+      <Link className="kg-product-visual-link" to={`/product/${product.id}`} aria-label={`Xem ${productName}`}>
         <ProductVisual product={product} className="kg-product-visual" />
       </Link>
       {product.stockQuantity > 0 && product.stockQuantity <= 5 && <span className="kg-product-badge">{'Sắp hết'}</span>}
       <div className="kg-product-card-body">
         <p className="kg-product-category">{categoryName}</p>
-        <Link className="kg-product-name" to={`/products/${product.id}`}>
+        <Link className="kg-product-name" to={`/product/${product.id}`}>
           {productName}
         </Link>
         <div className="kg-product-bottom">
@@ -27,7 +27,7 @@ export default function ProductCard({ product, onAdd }) {
             </span>
           </div>
           <div className="kg-product-actions">
-            <Link to={`/products/${product.id}`} className="kg-icon-button" aria-label="Xem chi tiết">
+            <Link to={`/product/${product.id}`} className="kg-icon-button" aria-label="Xem chi tiết">
               <Eye size={18} />
             </Link>
             <button

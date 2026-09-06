@@ -76,6 +76,15 @@ public class StorefrontRepository {
         } finally { em.close(); }
     }
 
+    /** The newest inventory, deliberately independent from featured and best-selling products. */
+    public List<Product> latest(int limit) {
+        EntityManager em = JpaConfig.getEntityManager();
+        try {
+            return em.createQuery("SELECT p FROM Product p JOIN FETCH p.category WHERE p.active = true ORDER BY p.createdAt DESC, p.id DESC", Product.class)
+                    .setMaxResults(Math.max(1, Math.min(limit, 10))).getResultList();
+        } finally { em.close(); }
+    }
+
     public List<Product> bestSelling(int limit) {
         EntityManager em = JpaConfig.getEntityManager();
         try {
@@ -205,6 +214,7 @@ public class StorefrontRepository {
             order = switch (normalizedSort) {
                 case "price-asc" -> " ORDER BY p.price ASC, p.id DESC";
                 case "price-desc" -> " ORDER BY p.price DESC, p.id DESC";
+                case "best-selling" -> " ORDER BY (SELECT COALESCE(SUM(oi.quantity), 0) FROM OrderItem oi WHERE oi.product.id = p.id) DESC, p.id DESC";
                 default -> " ORDER BY p.createdAt DESC, p.id DESC";
             };
         }

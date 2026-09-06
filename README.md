@@ -178,7 +178,7 @@ Dự án đã trải qua một quá trình nâng cấp toàn diện từ thiết
 * Node.js v18+ và npm (dành cho phát triển frontend).
 * Đã cài đặt Apache Tomcat 11.
 * SQL Server đang hoạt động và đã chạy các file SQL trong thư mục `/sql`.
-* *Lưu ý Port DB:* Dự án đang cấu hình port `127.0.0.1:52282`. Vui lòng chỉnh lại port trong file [DBConnection.java](file:///d:/Trung%20Khang/Documents/L%E1%BA%ADp%20tr%C3%ACnh%20WEB/laptrinhWEB_baitap/src/main/java/com/baitap/connection/DBConnection.java) và [persistence.xml](file:///d:/Trung%20Khang/Documents/L%E1%BA%ADp%20tr%C3%ACnh%20WEB/laptrinhWEB_baitap/src/main/resources/META-INF/persistence.xml) (thường là `1433`) cho khớp với cấu hình máy của bạn.
+* *Lưu ý Port DB:* Dự án đang cấu hình port `127.0.0.1:52282`. Vui lòng chỉnh lại port trong file [DBConnection.java]và [persistence.xml](thường là `1433`)cho khớp với cấu hình máy của bạn.
 
 ---
 
@@ -242,6 +242,47 @@ npm run build
 ### Cập nhật KhangGear Storefront & Nâng cấp Trải nghiệm Người dùng
 * **Bố cục chữ Hero Banner:** Tối ưu hóa container và typography, giữ nguyên câu *"Thiết bị tốt cho mọi setup."* trên 1 dòng; cố định cụm từ *"tận hưởng"* không bị tách rời.
 * **Nền đồ họa công nghệ (Tông màu lạnh):** Bổ sung họa tiết lưới kỹ thuật **Tech Blueprint Grid** kết hợp vệt sáng phát quang Neon Cyan và Electric Blue.
-* **Bộ Icon công nghệ cao cấp:** Xây dựng component [TechGadgetVisual.jsx](file:///d:/Trung%20Khang/Documents/L%E1%BA%ADp%20tr%C3%ACnh%20WEB/laptrinhWEB_baitap/frontend/src/components/TechGadgetVisual.jsx) với 11 thiết bị vector chi tiết cho danh mục và khung trưng bày **Tech Showcase** sản phẩm.
+* **Bộ Icon công nghệ cao cấp:** Xây dựng component [TechGadgetVisual.jsx] với 11 thiết bị vector chi tiết cho danh mục và khung trưng bày **Tech Showcase** sản phẩm.
 * **Khử lỗi dấu hỏi "?" tiếng Việt:** Tích hợp bộ lọc làm sạch chuỗi đa tầng tại `api.js` và cung cấp script `sql/04-fix-vietnamese-question-marks.sql`.
-* **Tài liệu tham khảo thêm:** Xem chi tiết tại [docs/storefront-api.md](file:///d:/Trung%20Khang/Documents/L%E1%BA%ADp%20tr%C3%ACnh%20WEB/laptrinhWEB_baitap/docs/storefront-api.md), [docs/storefront-ui-spec.md](file:///d:/Trung%20Khang/Documents/L%E1%BA%ADp%20tr%C3%ACnh%20WEB/laptrinhWEB_baitap/docs/storefront-ui-spec.md) và [docs/asset-manifest.md](file:///d:/Trung%20Khang/Documents/L%E1%BA%ADp%20tr%C3%ACnh%20WEB/laptrinhWEB_baitap/docs/asset-manifest.md).
+
+
+## Đối chiếu các chức năng theo yêu cầu bài tập
+
+| Chức năng | Trạng thái | URL hoặc API | Cách hoạt động và mã chính | Kết quả kiểm thử |
+| --- | --- | --- | --- | --- |
+| Đăng nhập và phân quyền | Hoàn thành | /login | LoginController, UserServiceImpl, AdminAuthFilter; hỗ trợ ADMIN, MANAGER, CUSTOMER. | mvn clean test thành công; tài khoản cũ vẫn được so khớp tương thích. |
+| Đăng ký và kích hoạt email | Đã triển khai | /register, /verify-email | Tài khoản công khai được tạo với role CUSTOMER, active=0, email_verified=0; OtpService gửi/kiểm mã 6 số. | Migration đã chạy; cần gửi thử sau khi Tomcat nhận biến SMTP. |
+| Quên mật khẩu qua OTP | Đã triển khai | /forgot-password, /forgot-password/verify, /reset-password | Chỉ session đã xác minh OTP mới được gọi UserService.resetPassword; mật khẩu mới được BCrypt hash. | Unit test BCrypt và legacy password thành công; chưa gửi email thật vì thiếu SMTP. |
+| Product và Category 1-n | Hoàn thành | products, Category | JPA Product liên kết ManyToOne Category; migration thêm/backfill thời gian tạo/cập nhật an toàn. | SQL Server xác nhận cột thời gian không còn giá trị null. |
+| CRUD Product ADMIN/MANAGER | Hoàn thành | /admin/product/list | Product controllers và ProductDao; thao tác thêm/sửa/xóa dùng PRG. | Maven test thành công; cần kiểm tra lại UI sau khi Tomcat nhận WAR mới. |
+| 10 sản phẩm mới nhất tại trang chủ | Hoàn thành | /home, GET /api/storefront/products/latest?limit=10 | StorefrontRepository.latest sắp createdAt DESC, id DESC, giới hạn tối đa 10 và React tải từ API. | Frontend lint/build thành công. |
+| Danh sách sản phẩm khách hàng | Hoàn thành | /product và alias /products | API phân trang database theo page, size=6; React giữ bộ lọc khi đổi trang. | Frontend lint/build thành công. |
+| Danh sách Product quản trị | Hoàn thành | /admin/product/list | Truy vấn JPQL phân trang 6 dòng/trang, mặc định createdAt DESC, id DESC; STT liên tục. | Maven test thành công; cần kiểm tra lại UI sau khi redeploy. |
+| Chi tiết sản phẩm | Hoàn thành | /product/:id, alias /products/:id | Product card/tên sản phẩm dẫn tới API chi tiết hiện có. | Frontend lint/build thành công. |
+
+### Cấu hình SMTP cho OTP
+
+Ứng dụng dùng Jakarta Mail (Angus Mail). Không đưa secret vào source hay README. Thiết lập các biến môi trường cho tiến trình Tomcat: SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD, SMTP_FROM, SMTP_STARTTLS. Với Gmail phải dùng App Password, không dùng mật khẩu Gmail chính. Sau khi cấu hình, khởi động lại Tomcat để biến môi trường được nhận.
+
+Trên Windows, tạo hoặc cập nhật `%CATALINA_BASE%\bin\setenv.bat` theo mẫu sau. Thay các giá trị trong dấu ngoặc bằng thông tin riêng của bạn; không commit file này vào Git.
+
+```bat
+set "SMTP_HOST=smtp.gmail.com"
+set "SMTP_PORT=587"
+set "SMTP_USERNAME=<gmail-gui>"
+set "SMTP_PASSWORD=<gmail-app-password>"
+set "SMTP_FROM=<gmail-gui>"
+set "SMTP_STARTTLS=true"
+```
+
+Sau đó dừng và khởi động Tomcat qua `bin\shutdown.bat` và `bin\startup.bat` (hoặc bảo đảm extension Server Connector khởi động JVM với sáu biến trên). `setenv.bat` chỉ có hiệu lực khi tiến trình Tomcat thực sự được tạo sau khi file đã tồn tại. Ứng dụng gửi HTML UTF-8 với From `KhangGear <SMTP_FROM>`; Gmail chỉ được dùng đúng địa chỉ đã xác thực, không giả mạo người gửi.
+
+Migration cần chạy: sql/05-product-pagination-and-account-otp.sql. Migration tạo bảng account_otps, thêm email_verified cho bảng User, backfill dữ liệu Product cũ và tạo index phục vụ danh sách mới nhất. OTP dùng SecureRandom, hash SHA-256, hiệu lực 5 phút, tối đa 5 lần sai, chỉ dùng một lần và chờ 60 giây mới gửi lại.
+
+### Nghiệp vụ đăng ký khi SMTP không sẵn sàng
+
+Đăng ký hợp lệ luôn lưu User trước: role CUSTOMER, active=0, email_verified=0. Nếu SMTP gửi thành công, ứng dụng chuyển tới /verify-email với thông báo Mã xác nhận đã được gửi đến email của bạn. Nếu SMTP lỗi hoặc chưa cấu hình, User không bị xóa/rollback, không thể đăng nhập và trang xác minh hiển thị: Tài khoản đã được tạo nhưng chưa thể gửi email xác nhận. Vui lòng thử gửi lại OTP sau. Khi nhập đúng OTP, transaction cập nhật email_verified=1 và active=1.
+
+Đăng ký lại bằng email đã có nhưng chưa xác minh không tạo thêm User. Hệ thống mở lại trang xác minh và cho gửi lại OTP sau 60 giây; OTP mới làm OTP cũ hết hiệu lực. Email được gửi dạng HTML UTF-8 với From là KhangGear <SMTP_FROM>, subject [KHANGGEAR] Mã xác nhận tạo tài khoản hoặc [KHANGGEAR] Mã xác nhận đặt lại mật khẩu.
+
+

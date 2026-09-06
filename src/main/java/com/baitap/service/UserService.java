@@ -5,6 +5,8 @@ import com.baitap.model.User;
 public interface UserService {
     User findByUsername(String username);
 
+    User findByEmail(String email);
+
     boolean authenticate(String username, String password);
 
     boolean checkExistEmail(String email);
@@ -32,4 +34,8 @@ public interface UserService {
     void updateByAdmin(User user);
 
     void changeActiveByAdmin(User actor, int targetId, boolean active);
+
+    void deleteByAdmin(User actor, int targetId);
+
+    void resetPassword(int userId, String newPassword);
 }

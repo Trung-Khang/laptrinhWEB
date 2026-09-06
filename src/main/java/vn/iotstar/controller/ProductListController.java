@@ -28,9 +28,10 @@ public class ProductListController extends ProductBaseController {
         Boolean active = parseActive(req.getParameter("active"));
         int page = parseInteger(req.getParameter("page")) == null ? 1 : parseInteger(req.getParameter("page"));
 
-        List<Product> products = productService.search(keyword, categoryId, active, page, PAGE_SIZE);
         long totalItems = productService.count(keyword, categoryId, active);
-        int totalPages = (int) Math.ceil(totalItems * 1.0 / PAGE_SIZE);
+        int totalPages = Math.max(1, (int) Math.ceil(totalItems * 1.0 / PAGE_SIZE));
+        page = Math.min(Math.max(1, page), totalPages);
+        List<Product> products = productService.search(keyword, categoryId, active, page, PAGE_SIZE);
         List<Category> categories = categoryService.findAll();
 
         req.setAttribute("products", products);

@@ -14,7 +14,7 @@ import java.util.List;
 /** JDBC access for the single application database: ShoppingServiceMVC. */
 public class UserDaoImpl implements UserDao {
     private static final String USER_COLUMNS =
-            "id, email, username, fullname, password, avatar, roleid, phone, createddate, active";
+            "id, email, username, fullname, password, avatar, roleid, phone, createddate, active, email_verified";
 
     @Override
     public User findByUsername(String username) {
@@ -25,13 +25,22 @@ public class UserDaoImpl implements UserDao {
         } catch (Exception e) { throw dataAccess("Không thể đọc tài khoản từ ShoppingServiceMVC.", e); }
     }
 
+    @Override
+    public User findByEmail(String email) {
+        String sql = "SELECT " + USER_COLUMNS + " FROM dbo.[User] WHERE email = ?";
+        try (Connection conn = new DBConnection().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email.trim());
+            try (ResultSet rs = ps.executeQuery()) { return rs.next() ? mapUser(rs) : null; }
+        } catch (Exception e) { throw dataAccess("Không thể đọc tài khoản từ ShoppingServiceMVC.", e); }
+    }
+
     @Override public boolean checkExistUsername(String username) { return exists("SELECT 1 FROM dbo.[User] WHERE username = ?", username); }
     @Override public boolean checkExistEmail(String email) { return exists("SELECT 1 FROM dbo.[User] WHERE email = ?", email); }
     @Override public boolean checkExistPhone(String phone) { return exists("SELECT 1 FROM dbo.[User] WHERE phone = ?", phone); }
 
     @Override
     public void insert(User user) {
-        String sql = "INSERT INTO dbo.[User] (username, email, fullname, password, avatar, roleid, phone, createddate, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO dbo.[User] (username, email, fullname, password, avatar, roleid, phone, createddate, active, email_verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = new DBConnection().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             conn.setAutoCommit(false);
@@ -39,7 +48,7 @@ public class UserDaoImpl implements UserDao {
             ps.setString(4, user.getPassword()); ps.setString(5, user.getAvatar() == null ? "" : user.getAvatar());
             ps.setInt(6, user.getRoleid()); ps.setString(7, user.getPhone());
             ps.setDate(8, user.getCreatedDate() == null ? new Date(System.currentTimeMillis()) : user.getCreatedDate());
-            ps.setBoolean(9, user.isActive()); ps.executeUpdate();
+            ps.setBoolean(9, user.isActive()); ps.setBoolean(10, user.isEmailVerified()); ps.executeUpdate();
             try (ResultSet keys = ps.getGeneratedKeys()) { if (keys.next()) user.setId(keys.getInt(1)); }
             conn.commit();
         } catch (Exception e) { throw dataAccess("Không thể thêm người dùng vào ShoppingServiceMVC.", e); }
@@ -106,6 +115,50 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
+    public void updateEmailVerified(int id, boolean emailVerified) {
+        String sql = "UPDATE dbo.[User] SET email_verified=? WHERE id=?";
+        try (Connection conn = new DBConnection().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setBoolean(1, emailVerified); ps.setInt(2, id);
+            if (ps.executeUpdate() != 1) throw new IllegalArgumentException("Không tìm thấy người dùng cần cập nhật.");
+        } catch (Exception e) { throw dataAccess("Không thể cập nhật trạng thái xác minh email.", e); }
+    }
+
+    @Override
+    public void updatePassword(int id, String passwordHash) {
+        String sql = "UPDATE dbo.[User] SET password=? WHERE id=?";
+        try (Connection conn = new DBConnection().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, passwordHash); ps.setInt(2, id);
+            if (ps.executeUpdate() != 1) throw new IllegalArgumentException("Không tìm thấy người dùng cần cập nhật.");
+        } catch (Exception e) { throw dataAccess("Không thể cập nhật mật khẩu.", e); }
+    }
+
+    @Override
+    public boolean hasOrders(int id) {
+        String sql = "SELECT CASE WHEN EXISTS (SELECT 1 FROM dbo.orders WHERE user_id=?) THEN 1 ELSE 0 END";
+        try (Connection conn = new DBConnection().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) { return rs.next() && rs.getInt(1) == 1; }
+        } catch (Exception e) { throw dataAccess("Không thể kiểm tra lịch sử đơn hàng của người dùng.", e); }
+    }
+
+    @Override
+    public void delete(int id) {
+        try (Connection conn = new DBConnection().getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement otp = conn.prepareStatement("DELETE FROM dbo.account_otps WHERE user_id=?");
+                 PreparedStatement user = conn.prepareStatement("DELETE FROM dbo.[User] WHERE id=?")) {
+                otp.setInt(1, id); otp.executeUpdate();
+                user.setInt(1, id);
+                if (user.executeUpdate() != 1) throw new IllegalArgumentException("Không tìm thấy người dùng cần xóa.");
+                conn.commit();
+            } catch (Exception e) {
+                conn.rollback();
+                throw e;
+            }
+        } catch (Exception e) { throw dataAccess("Không thể xóa người dùng.", e); }
+    }
+
+    @Override
     public boolean existsEmailExceptId(String email, int id) {
         String sql = "SELECT 1 FROM dbo.[User] WHERE email = ? AND id <> ?";
         try (Connection conn = new DBConnection().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -132,7 +185,7 @@ public class UserDaoImpl implements UserDao {
         User user = new User(); user.setId(rs.getInt("id")); user.setEmail(rs.getString("email"));
         user.setUserName(rs.getString("username")); user.setFullName(rs.getString("fullname")); user.setPassword(rs.getString("password"));
         user.setAvatar(rs.getString("avatar")); user.setRoleid(rs.getInt("roleid")); user.setPhone(rs.getString("phone"));
-        user.setCreatedDate(rs.getDate("createddate")); user.setActive(rs.getBoolean("active")); return user;
+        user.setCreatedDate(rs.getDate("createddate")); user.setActive(rs.getBoolean("active")); user.setEmailVerified(rs.getBoolean("email_verified")); return user;
     }
 
     private RuntimeException dataAccess(String message, Exception cause) { return new IllegalStateException(message, cause); }

@@ -13,7 +13,7 @@ import java.util.Map;
 import vn.iotstar.entity.Category;
 import vn.iotstar.entity.Product;
 
-@WebServlet(urlPatterns = {"/api/storefront/categories", "/api/storefront/products", "/api/storefront/products/*"})
+@WebServlet(urlPatterns = {"/api/storefront/categories", "/api/storefront/products", "/api/storefront/products/*", "/api/storefront/products/latest"})
 public class StorefrontCatalogApiController extends BaseApiServlet {
     private static final int MAX_PAGE_SIZE = 24;
     private final StorefrontRepository repository = new StorefrontRepository();
@@ -23,6 +23,7 @@ public class StorefrontCatalogApiController extends BaseApiServlet {
         try {
             String path = request.getRequestURI().substring(request.getContextPath().length());
             if (path.endsWith("/categories")) { categories(request, response); return; }
+            if (path.endsWith("/products/latest")) { latest(request, response); return; }
             if (path.endsWith("/products/featured")) { ok(response, repository.featured(8).stream().map(product -> StorefrontMapper.product(product, request.getContextPath())).toList()); return; }
             if (path.endsWith("/products/best-selling")) { ok(response, repository.bestSelling(8).stream().map(product -> StorefrontMapper.product(product, request.getContextPath())).toList()); return; }
             String suffix = request.getPathInfo();
@@ -51,7 +52,7 @@ public class StorefrontCatalogApiController extends BaseApiServlet {
 
     private void products(HttpServletRequest request, HttpServletResponse response) throws IOException {
         int page = Math.max(1, integer(request, "page", 1));
-        int pageSize = Math.min(MAX_PAGE_SIZE, Math.max(1, integer(request, "pageSize", 12)));
+        int pageSize = Math.min(MAX_PAGE_SIZE, Math.max(1, integer(request, "size", integer(request, "pageSize", 12))));
         Integer categoryId = integer(request, "categoryId", 0); if (categoryId <= 0) categoryId = null;
         boolean inStock = Boolean.parseBoolean(request.getParameter("inStock"));
         BigDecimal minPrice = decimal(request, "minPrice"); BigDecimal maxPrice = decimal(request, "maxPrice");
@@ -63,6 +64,12 @@ public class StorefrontCatalogApiController extends BaseApiServlet {
         int totalPages = Math.max(1, (int) Math.ceil((double) total / pageSize));
         if (page > totalPages) page = totalPages;
         List<Product> items = repository.products(keyword, categoryId, minPrice, maxPrice, inStock, sort, page, pageSize);
-        ok(response, new ProductPageDto(items.stream().map(product -> StorefrontMapper.product(product, request.getContextPath())).toList(), page, pageSize, total, totalPages));
+        ok(response, new ProductPageDto(items.stream().map(product -> StorefrontMapper.product(product, request.getContextPath())).toList(), page, pageSize, total, totalPages, page > 1, page < totalPages));
+    }
+
+    private void latest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        int limit = Math.min(10, Math.max(1, integer(request, "limit", 10)));
+        ok(response, repository.latest(limit).stream()
+                .map(product -> StorefrontMapper.product(product, request.getContextPath())).toList());
     }
 }

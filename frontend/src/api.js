@@ -30,6 +30,7 @@ export const apiBase = API_BASE
 export const storefrontApi = {
   categories: () => request('/api/storefront/categories'),
   products: (query) => request(`/api/storefront/products?${new URLSearchParams(query).toString()}`),
+  latest: (limit = 10) => request(`/api/storefront/products/latest?limit=${limit}`),
   product: (id) => request(`/api/storefront/products/${id}`),
   featured: () => request('/api/storefront/products/featured'),
   bestSelling: () => request('/api/storefront/products/best-selling'),

@@ -55,7 +55,7 @@ function ProductRow({ title, subtitle, products, loading }) {
           <h2>{title}</h2>
           <p>{subtitle}</p>
         </div>
-        <Link to="/products" className="kg-text-link">
+        <Link to="/product" className="kg-text-link">
           {text.viewAll} <ArrowRight size={17} />
         </Link>
       </div>
@@ -86,13 +86,13 @@ export default function HomePage() {
       storefrontApi.categories(),
       storefrontApi.featured(),
       storefrontApi.bestSelling(),
-      storefrontApi.products({ page: 1, pageSize: 4, sort: 'newest' })
+      storefrontApi.latest(10)
     ])
       .then(([cats, feature, best, newest]) => {
         setCategories(cats)
         setFeatured(feature)
         setBestSelling(best)
-        setLatest(newest.items)
+        setLatest(newest)
       })
       .catch(() => setError(text.loadError))
   }, [])
@@ -114,7 +114,7 @@ export default function HomePage() {
             </h1>
             <p>{text.heroCopy}</p>
             <div className="kg-hero-actions">
-              <Link to="/products" className="kg-button kg-button-primary">
+              <Link to="/product" className="kg-button kg-button-primary">
                 {text.discoverProducts} <ArrowRight size={18} />
               </Link>
               <Link to="/home#categories" className="kg-button kg-button-ghost">
@@ -164,13 +164,13 @@ export default function HomePage() {
             <p className="kg-eyebrow">{text.featuredCategories}</p>
             <h2>{text.categoryTitle}</h2>
           </div>
-          <Link to="/products" className="kg-text-link">
+          <Link to="/product" className="kg-text-link">
             {text.discover} <ArrowRight size={17} />
           </Link>
         </div>
         <div className="kg-category-grid">
           {categories.map((category) => (
-            <Link className="kg-category-card" key={category.id} to={`/products?categoryId=${category.id}`}>
+            <Link className="kg-category-card" key={category.id} to={`/product?categoryId=${category.id}`}>
               <span>
                 <CategoryVisual category={category} />
               </span>
@@ -191,8 +191,8 @@ export default function HomePage() {
         </div>
       ) : (
         <div className="kg-page-width">
+          <ProductRow title="Sản phẩm mới nhất" subtitle="10 sản phẩm vừa được bổ sung, sắp xếp từ mới đến cũ." products={latest} loading={!latest.length} />
           <ProductRow title={text.bestTitle} subtitle={text.bestSubtitle} products={bestSelling} loading={!bestSelling.length} />
-          <ProductRow title={text.latestTitle} subtitle={text.latestSubtitle} products={latest} loading={!latest.length} />
         </div>
       )}
 

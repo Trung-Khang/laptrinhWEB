@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /** BrowserRouter entry points for the production React build. */
-@WebServlet(urlPatterns = {"/products", "/products/*", "/cart", "/checkout", "/account/*"})
+@WebServlet(urlPatterns = {"/product", "/product/*", "/products", "/products/*", "/cart", "/checkout", "/account/*"})
 public class StorefrontPageController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
