@@ -160,3 +160,7 @@ $RECYCLE.BIN/
 *.old
 *.patch
 
+# Local implementation reports and verification-only tests
+reports/
+src/test/
+src/main/java/vn/iotstar/test/
