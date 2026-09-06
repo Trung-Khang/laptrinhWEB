@@ -31,9 +31,7 @@ coverage/
 .nyc_output/
 
 # Frontend temporary assets / design screenshots
-frontend/public/assets/images/*.png
-frontend/public/assets/images/*.jpg
-frontend/public/assets/images/*.jpeg
+frontend/public/assets/images/
 
 # ==============================================================================
 # 2. Java / Maven Build Output
@@ -160,7 +158,5 @@ $RECYCLE.BIN/
 *.old
 *.patch
 
-# Local implementation reports and verification-only tests
+# Local implementation reports
 reports/
-src/test/
-src/main/java/vn/iotstar/test/
