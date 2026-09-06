@@ -163,7 +163,7 @@ Dự án đã trải qua một quá trình nâng cấp toàn diện từ thiết
 ## 4. Công nghệ & Cấu trúc Cơ sở Dữ liệu
 
 ### 4.1. Ngăn xếp Công nghệ (Tech Stack)
-* **Backend:** Java 21, Jakarta EE (Servlet 6.0, JSP, JSTL), Maven.
+* **Backend:** Java 17, Jakarta EE (Servlet 6.0, JSP, JSTL), Maven.
 * **ORM:** JPA (Hibernate 6.6.1.Final).
 * **Database:** Microsoft SQL Server (JDBC Driver).
 * **Application Server:** Apache Tomcat 11.
