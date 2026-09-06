@@ -2,7 +2,7 @@
 
 **Sinh viên thực hiện:** Nguyễn Trung Khang  
 **MSSV:** 24133028  
-**Học phần:** Lập trình Web (Bài tập 02 - JPA API & Servlet MVC)  
+**Học phần:** Lập trình Web  
 
 ---
 
