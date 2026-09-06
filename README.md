@@ -61,7 +61,14 @@ Dự án là một hệ thống Web Thương mại Điện tử & Quản trị t
                                            v
                    +-----------------------------------------------+
                    |             Microsoft SQL Server              |
-                   |   (DB_LapTrinhWeb & ShoppingServiceMVC )       |
+                   | (DB_LapTrinhWeb & ShoppingServiceMVC)         |
+                   |                                               |
+                   | Scripts (sql/):                               |
+                   | - DB_LapTrinhWeb.sql                          |
+                   | - ShoppingServiceMVC.sql                      |
+                   | - 02-normalize-category-encoding.sql          |
+                   | - 03-storefront-checkout-migration.sql        |
+                   | - 04-fix-vietnamese-question-marks.sql        |
                    +-----------------------------------------------+
 ```
 
