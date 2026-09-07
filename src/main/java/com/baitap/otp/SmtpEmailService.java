@@ -11,15 +11,22 @@ import jakarta.mail.SendFailedException;
 import jakarta.mail.Transport;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/** SMTP secrets are read only from the process environment, never from source or logs. */
+/** SMTP secrets are read only from local runtime configuration, never from source or logs. */
 public class SmtpEmailService {
     private static final Logger LOGGER = Logger.getLogger(SmtpEmailService.class.getName());
+    private static final Map<String, String> SETENV_VALUES = loadSetenvValues();
 
     public void sendOtp(User user, OtpPurpose purpose, String otp) {
         String host = environment("SMTP_HOST");
@@ -75,8 +82,37 @@ public class SmtpEmailService {
         }
     }
 
-    private String environment(String name) { String value = System.getenv(name); return value == null ? "" : value.trim(); }
+    private String environment(String name) {
+        String value = System.getenv(name);
+        if (blank(value)) value = System.getProperty(name);
+        if (blank(value)) value = SETENV_VALUES.get(name);
+        return value == null ? "" : value.trim();
+    }
     private boolean blank(String value) { return value == null || value.isBlank(); }
+
+    private static Map<String, String> loadSetenvValues() {
+        Map<String, String> values = new HashMap<>();
+        String base = System.getProperty("catalina.base");
+        if (base == null || base.isBlank()) return values;
+        Path setenv = Path.of(base, "bin", "setenv.bat");
+        if (!Files.isRegularFile(setenv)) return values;
+        try {
+            for (String line : Files.readAllLines(setenv, StandardCharsets.UTF_8)) {
+                String trimmed = line.trim();
+                if (!trimmed.regionMatches(true, 0, "set ", 0, 4)) continue;
+                String assignment = trimmed.substring(4).trim();
+                if (assignment.startsWith("\"") && assignment.endsWith("\"")) assignment = assignment.substring(1, assignment.length() - 1);
+                int equals = assignment.indexOf('=');
+                if (equals <= 0) continue;
+                String key = assignment.substring(0, equals).trim();
+                if (!key.startsWith("SMTP_")) continue;
+                values.put(key, assignment.substring(equals + 1).trim());
+            }
+        } catch (IOException exception) {
+            LOGGER.log(Level.WARNING, "Cannot read local SMTP runtime configuration.", exception);
+        }
+        return values;
+    }
 
     private List<String> missingConfiguration(String host, String username, String password, String from, String startTls) {
         List<String> missing = new ArrayList<>();
