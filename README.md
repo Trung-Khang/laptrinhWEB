@@ -1,4 +1,4 @@
-# Báo Cáo Đồ Án: Hệ Thống Quản Trị & Cửa Hàng KhangGear (Java Web)
+BÀI TẬP MÔN LẬP TRÌNH WEB: Hệ Thống Quản Trị & Cửa Hàng KhangGear (Java Web)
 
 **Sinh viên thực hiện:** Nguyễn Trung Khang  
 **MSSV:** 24133028  
