@@ -39,37 +39,43 @@ Dự án là một hệ thống Web Thương mại Điện tử & Quản trị t
                    +-----------------------------------------------+
                    |       Apache Tomcat 11 (Context: /dangnhap)   |
                    +-----------------------------------------------+
-                   | [Filter Layer]                                |
-                   |  - CharacterEncodingFilter (UTF-8)            |
-                   |  - AdminAuthFilter (Phân quyền Admin/Manager) |
-                   |  - StorefrontCorsFilter                       |
-                   |                                               |
-                   | [Controller Layer]                            |
-                   |  - RESTful API Servlets (/api/storefront/*)   |
-                   |  - Admin MVC Servlets (/admin/*)              |
-                   |  - Auth Controllers (/login, /logout)         |
-                   +-----------------------------------------------+
-                                           |
-                                           v
-                   +-----------------------------------------------+
-                   | [Service & DAO Layer]                         |
-                   |  - JPA / Hibernate 6.6.1 ORM (EntityManager)  |
-                   |  - Native JDBC DAO (User Authentication)      |
-                   |  - StorefrontRepository & DTO Mappers         |
-                   +-----------------------------------------------+
-                                           |
-                                           v
-                   +-----------------------------------------------+
-                   |             Microsoft SQL Server              |
-                   | (DB_LapTrinhWeb & ShoppingServiceMVC)         |
-                   |                                               |
-                   | Scripts (sql/):                               |
-                   | - DB_LapTrinhWeb.sql                          |
-                   | - ShoppingServiceMVC.sql                      |
-                   | - 02-normalize-category-encoding.sql          |
-                   | - 03-storefront-checkout-migration.sql        |
-                   | - 04-fix-vietnamese-question-marks.sql        |
-                   +-----------------------------------------------+
+                    | [Filter Layer]                                |
+                    |  - CharacterEncodingFilter (UTF-8)            |
+                    |  - AdminAuthFilter (Phân quyền Admin/Manager) |
+                    |  - StorefrontCorsFilter                       |
+                    |  - ConfigurableSiteMeshFilter (SiteMesh 3)    |
+                    |                                               |
+                    | [Controller Layer]                            |
+                    |  - RESTful API Servlets (/api/storefront/*,   |
+                    |    /api/account/*)                            |
+                    |  - ProfileController (/profile - Multipart)   |
+                    |  - Admin MVC Servlets (/admin/*)              |
+                    |  - Auth Controllers (/login, /logout, OTP)    |
+                    +-----------------------------------------------+
+                                            |
+                                            v
+                    +-----------------------------------------------+
+                    | [Service & DAO Layer]                         |
+                    |  - JPA / Hibernate 6.6.1 ORM (EntityManager)  |
+                    |  - JpaProfileRepository (JPA Profile Update)  |
+                    |  - Native JDBC DAO (User Authentication)      |
+                    |  - StorefrontRepository & DTO Mappers         |
+                    +-----------------------------------------------+
+                                            |
+                                            v
+                    +-----------------------------------------------+
+                    |             Microsoft SQL Server              |
+                    | (DB_LapTrinhWeb & ShoppingServiceMVC)         |
+                    |                                               |
+                    | Scripts (sql/):                               |
+                    | - DB_LapTrinhWeb.sql                          |
+                    | - ShoppingServiceMVC.sql                      |
+                    | - 02-normalize-category-encoding.sql          |
+                    | - 03-storefront-checkout-migration.sql        |
+                    | - 04-fix-vietnamese-question-marks.sql        |
+                    | - 05-product-pagination-and-account-otp.sql   |
+                    | - 06-user-profile-jpa-migration.sql           |
+                    +-----------------------------------------------+
 ```
 
 ---
@@ -164,17 +170,24 @@ Dự án đã trải qua một quá trình nâng cấp toàn diện từ thiết
 
 ### 4.1. Ngăn xếp Công nghệ (Tech Stack)
 * **Backend:** Java 17, Jakarta EE (Servlet 6.0, JSP, JSTL), Maven.
-* **ORM:** JPA (Hibernate 6.6.1.Final).
-* **Database:** Microsoft SQL Server (JDBC Driver).
-* **Application Server:** Apache Tomcat 11.
-* **Frontend:** React 18, Vite 6, React Router DOM v6, Lucide React, Modern CSS3.
+* **UI Decorator & Layout Management:** SiteMesh 3.2.1 (`org.sitemesh:sitemesh:3.2.1` tương thích Jakarta EE 10 / Tomcat 11).
+* **Multipart File Upload:** Jakarta Servlet 6.0 `@MultipartConfig` & `jakarta.servlet.http.Part` (giới hạn dung lượng, MIME whitelist, extension whitelist, chống Path Traversal).
+* **ORM & Persistence:** JPA 3.1 / Hibernate ORM 6.6.1.Final (`EntityManager`, `EntityTransaction`, `@Entity User` mapping schema `dbo.[User]`).
+* **Database:** Microsoft SQL Server 2022 / Express (JDBC Driver 12.4.2).
+* **Application Server:** Apache Tomcat 11.0.25 (hỗ trợ Jakarta Servlet 6.0).
+* **Bảo mật & Mã hóa:** BCrypt Password Hashing (`org.mindrot:jbcrypt:0.4`), SecureRandom SHA-256 OTP tokens, Admin Role Auth Filter, Whitelist MIME validation.
+* **Email & Thông báo:** Jakarta Mail / Angus Mail (gửi OTP kích hoạt tài khoản và quên mật khẩu).
+* **Frontend:** React 18, Vite 6, React Router DOM v6, Lucide React, Modern CSS3 Tech Theme.
+* **REST APIs:** `/api/storefront/*` (danh mục, sản phẩm, giỏ hàng, đặt hàng), `/api/account/*` (hồ sơ, đơn hàng cá nhân).
 
 ### 4.2. Danh mục File Cơ sở Dữ liệu (Thư mục `/sql`)
-1. **`DB_LapTrinhWeb.sql`:** Chứa bảng `users` (dùng cho chức năng Đăng nhập - tài khoản mẫu: `admin` / `123`).
-2. **`ShoppingServiceMVC.sql`:** Chứa cấu trúc bảng `Category`, `videos`, `products`, `orders`, `order_items` và dữ liệu mẫu của cửa hàng.
+1. **`DB_LapTrinhWeb.sql`:** Script database cũ (chứa bảng users phục vụ kiểm thử tương thích ngược).
+2. **`ShoppingServiceMVC.sql`:** Database chính của hệ thống, chứa cấu trúc bảng `dbo.[User]`, `Category`, `videos`, `products`, `orders`, `order_items` và dữ liệu mẫu của cửa hàng.
 3. **`02-normalize-category-encoding.sql`:** Script xử lý hợp nhất các danh mục bị lỗi mã hóa font tiếng Việt ban đầu.
-4. **`03-storefront-checkout-migration.sql`:** Script bổ sung các cột cần thiết phục vụ quy trình đặt hàng và thanh toán.
+4. **`03-storefront-checkout-migration.sql`:** Script bổ sung các cột cần thiết phục vụ quy trình đặt hàng và thanh toán (`email`, `payment_method`, `payment_status`).
 5. **`04-fix-vietnamese-question-marks.sql`:** Script chuẩn hóa trực tiếp các bản ghi bị dấu hỏi "?" trong cơ sở dữ liệu (`Tay cầm Xbox Wireless`, `tạo thử test`...).
+6. **`05-product-pagination-and-account-otp.sql`:** Script tạo bảng `account_otps`, bổ sung cột `email_verified` cho `User`, backfill `created_at` cho `products` và tạo index sắp xếp mới nhất.
+7. **`06-user-profile-jpa-migration.sql`:** Script bổ sung idempotent các cột `phone NVARCHAR(30)`, `avatar NVARCHAR(500)` và chuẩn hóa cột `fullname NVARCHAR(255)` trong bảng `dbo.[User]` để hiển thị tiếng Việt có dấu chuẩn Unicode.
 
 ---
 
@@ -260,6 +273,7 @@ npm run build
 | Đăng nhập và phân quyền | Hoàn thành | /login | LoginController, UserServiceImpl, AdminAuthFilter; hỗ trợ ADMIN, MANAGER, CUSTOMER. | mvn clean test thành công; tài khoản cũ vẫn được so khớp tương thích. |
 | Đăng ký và kích hoạt email | Đã triển khai | /register, /verify-email | Tài khoản công khai được tạo với role CUSTOMER, active=0, email_verified=0; OtpService gửi/kiểm mã 6 số. | Migration đã chạy; cần gửi thử sau khi Tomcat nhận biến SMTP. |
 | Quên mật khẩu qua OTP | Đã triển khai | /forgot-password, /forgot-password/verify, /reset-password | Chỉ session đã xác minh OTP mới được gọi UserService.resetPassword; mật khẩu mới được BCrypt hash. | Unit test BCrypt và legacy password thành công; chưa gửi email thật vì thiếu SMTP. |
+| Hồ sơ User & Upload Avatar (SiteMesh & JPA) | Hoàn thành | /profile, PUT /api/account/profile | ProfileController (@MultipartConfig, Part), profile-layout.jsp (SiteMesh 3 decorator), profile.jsp, JpaProfileRepository & UserService.updateProfile (JPA transaction), DownloadImageController (/image?fname=avatar/...). Hỗ trợ cập nhật đồng thời fullname, phone, avatar; validate MIME (JPG/PNG/WEBP), size <= 2MB, chống path traversal. | mvn clean test thành công (ProfileControllerMappingTest, UserJpaMappingTest); upload avatar và render an toàn; đồng bộ session account tức thì. |
 | Product và Category 1-n | Hoàn thành | products, Category | JPA Product liên kết ManyToOne Category; migration thêm/backfill thời gian tạo/cập nhật an toàn. | SQL Server xác nhận cột thời gian không còn giá trị null. |
 | CRUD Product ADMIN/MANAGER | Hoàn thành | /admin/product/list | Product controllers và ProductDao; thao tác thêm/sửa/xóa dùng PRG. | Maven test thành công; cần kiểm tra lại UI sau khi Tomcat nhận WAR mới. |
 | 10 sản phẩm mới nhất tại trang chủ | Hoàn thành | /home, GET /api/storefront/products/latest?limit=10 | StorefrontRepository.latest sắp createdAt DESC, id DESC, giới hạn tối đa 10 và React tải từ API. | Frontend lint/build thành công. |
@@ -321,6 +335,14 @@ Công nghệ bổ sung/được dùng trong giai đoạn này: Jakarta Persisten
   - Lưu vào thư mục upload chuyên biệt: `Constant.DIR + "/avatar"`.
   - Hiển thị trực tiếp trên giao diện qua servlet phục vụ ảnh `/image?fname=avatar/...`.
 - Đồng bộ dữ liệu: Cập nhật `avatar` vào database qua JPA `updateProfile`, đồng bộ tức thì vào session `account`, áp dụng Post/Redirect/Get (PRG) cùng FlashMessage tiếng Việt.
+### Cập nhật 07-09-2026: Sửa lỗi Unicode tiếng Việt & Đồng bộ Điều hướng Profile toàn hệ thống
 
+1. **Khắc phục triệt để lỗi font tiếng Việt (`Qu?n tr? viên`, `Nguy?n Trung Khang`):**
+   - **Nguyên nhân:** Cột `fullname` trong bảng `dbo.[User]` trước đây là `VARCHAR(150)` nên SQL Server tự động chuyển đổi các ký tự Unicode có dấu tiếng Việt thành dấu `?`.
+   - **Xử lý:** Chuyển đổi cột `fullname` sang `NVARCHAR(255)`, cập nhật lại toàn bộ dữ liệu người dùng (`Quản trị viên`, `Quản lý`, `Nguyễn Trung Khang`), cập nhật script migration `sql/06-user-profile-jpa-migration.sql` để đảm bảo tính nhất quán trên mọi môi trường.
 
-
+2. **Đồng bộ điều hướng truy cập trang Hồ sơ cá nhân (SiteMesh & React):**
+   - **Header & Menu Storefront (React):** Click vào tên tài khoản người dùng ở góc trên bên phải hoặc mục menu "Hồ sơ" trên thanh điều hướng sẽ mở trực tiếp trang Profile SiteMesh chuẩn JSP (`/profile`).
+   - **Trang `/account/profile` (React):** Bổ sung nút nổi bật "Mở Hồ sơ SiteMesh & Upload Avatar", đồng thời hiển thị avatar đã upload của người dùng từ API `/api/account/profile`.
+   - **Giao diện Quản trị Admin & Manager:** Bổ sung mục menu "Hồ sơ cá nhân" trên Sidebar, liên kết tên tài khoản và nút "Hồ sơ" trên Header để admin/manager dễ dàng cập nhật thông tin và avatar.
+   - **Layout SiteMesh (`profile-layout.jsp`):** Bổ sung nút "Trang Quản trị" dành cho tài khoản có quyền Admin hoặc Manager để chuyển đổi qua lại thuận tiện.
