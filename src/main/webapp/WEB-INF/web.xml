@@ -7,16 +7,11 @@
 
   <display-name>dangnhap</display-name>
 
+  <!-- SiteMesh filter giữ lại nhưng không map vào URL nào (profile sử dụng inline layout)  -->
   <filter>
     <filter-name>sitemesh</filter-name>
     <filter-class>org.sitemesh.config.ConfigurableSiteMeshFilter</filter-class>
   </filter>
-
-  <filter-mapping>
-    <filter-name>sitemesh</filter-name>
-    <url-pattern>/profile</url-pattern>
-    <dispatcher>REQUEST</dispatcher>
-  </filter-mapping>
 
   <!-- Welcome file -->
   <welcome-file-list>

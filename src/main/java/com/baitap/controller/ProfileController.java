@@ -52,7 +52,7 @@ public class ProfileController extends HttpServlet {
         }
         request.getSession().setAttribute("account", fresh);
         request.setAttribute("profileUser", fresh);
-        request.getRequestDispatcher("/WEB-INF/views/profile.jsp").include(request, response);
+        request.getRequestDispatcher("/WEB-INF/views/profile.jsp").forward(request, response);
     }
 
     @Override
