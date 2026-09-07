@@ -5,6 +5,8 @@ BÀI TẬP MÔN LẬP TRÌNH WEB: Hệ Thống Quản Trị & Cửa Hàng KhangG
 **Học phần:** Lập trình Web  
 
 ---
+Tài khoản đăng nhập quyền quản trị viên/quản lý test thử: admin|pass: 123 hoặc manager|pass: 123
+Tài khoản User tự tạo và phải điền email thật để hệ thống gửi otp kích hoạt tài khoản
 
 ## Mục Lục
 1. [Tổng quan Kiến trúc Hệ thống](#1-tổng-quan-kiến-trúc-hệ-thống)
