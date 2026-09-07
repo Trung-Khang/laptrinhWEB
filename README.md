@@ -306,4 +306,21 @@ Công nghệ bổ sung/được dùng trong giai đoạn này: Jakarta Persisten
 - Đồng bộ dữ liệu session `account` sau cập nhật, áp dụng mô hình Post/Redirect/Get (PRG) và flash message.
 - Công nghệ bổ sung: SiteMesh 3.2.1 (Jakarta EE compatible), `WEB-INF/sitemesh3.xml`, JSP/JSTL, CSS giao diện hồ sơ.
 
+### Cập nhật 07-09-2026: User Profile Giai đoạn 3 (Upload ảnh đại diện bằng Multipart)
+
+Đã hoàn thiện chức năng cập nhật ảnh đại diện người dùng sử dụng chuẩn Multipart Form trong Jakarta Servlet 6.0:
+- Form profile JSP: Bổ sung thuộc tính `enctype="multipart/form-data"` và input `<input type="file" name="avatar" accept="image/jpeg,image/png,image/webp">`.
+- Xử lý Controller: `ProfileController` khai báo `@MultipartConfig` với cấu hình an toàn (fileSizeThreshold 1MB, maxFileSize 2MB, maxRequestSize 5MB).
+- Cập nhật đồng thời: Cho phép cập nhật `fullname`, `phone` và `avatar` trong cùng một form. Nếu người dùng không chọn ảnh mới, avatar cũ được giữ nguyên.
+- Kiểm tra & Bảo mật file upload:
+  - Giới hạn dung lượng tối đa 2MB (trả thông báo thân thiện nếu vượt quá giới hạn).
+  - Kiểm tra MIME type hợp lệ (`image/jpeg`, `image/png`, `image/webp`) và phần mở rộng an toàn (`.jpg`, `.jpeg`, `.png`, `.webp`).
+  - Đặt tên file an toàn bằng UUID ngẫu nhiên gắn với User ID (`avatar_{id}_{uuid}.ext`), ngăn ngừa xung đột và tuyệt đối không dùng tên file gốc từ client.
+  - Chặn tấn công đường dẫn Path Traversal bằng chuẩn hóa đường dẫn `Path.normalize()`.
+- Lưu trữ & Hiển thị:
+  - Lưu vào thư mục upload chuyên biệt: `Constant.DIR + "/avatar"`.
+  - Hiển thị trực tiếp trên giao diện qua servlet phục vụ ảnh `/image?fname=avatar/...`.
+- Đồng bộ dữ liệu: Cập nhật `avatar` vào database qua JPA `updateProfile`, đồng bộ tức thì vào session `account`, áp dụng Post/Redirect/Get (PRG) cùng FlashMessage tiếng Việt.
+
+
 

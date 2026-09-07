@@ -40,7 +40,7 @@
             <div class="alert error"><c:out value="${flashError}"/></div>
         </c:if>
 
-        <form method="post" action="${pageContext.request.contextPath}/profile" class="profile-form">
+        <form method="post" action="${pageContext.request.contextPath}/profile" enctype="multipart/form-data" class="profile-form">
             <label>
                 Tên đăng nhập
                 <input value="${profileUser.userName}" disabled>
@@ -57,7 +57,11 @@
                 Số điện thoại
                 <input name="phone" maxlength="30" value="${profileUser.phone}">
             </label>
-            <p class="avatar-note">Upload ảnh đại diện sẽ được bổ sung ở Giai đoạn 3. Hiện tại hệ thống chỉ hiển thị avatar đã có trong dữ liệu.</p>
+            <label>
+                Ảnh đại diện mới
+                <input type="file" name="avatar" accept="image/jpeg,image/png,image/webp">
+            </label>
+            <p class="avatar-note">Hỗ trợ định dạng JPG, PNG, WEBP. Dung lượng tối đa 2MB. Để trống nếu muốn giữ ảnh đại diện hiện tại.</p>
             <div class="form-actions">
                 <button type="submit"><i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi</button>
                 <a href="${pageContext.request.contextPath}/home">Quay lại cửa hàng</a>
