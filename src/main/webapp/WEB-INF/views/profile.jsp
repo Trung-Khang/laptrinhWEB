@@ -22,13 +22,24 @@
             <a href="<%=contextPath%>/home">Trang chủ</a>
             <a href="<%=contextPath%>/product">Sản phẩm</a>
             <a class="active" href="<%=contextPath%>/profile">Hồ sơ</a>
-            <c:if test="${sessionScope.account.roleid == 1 || sessionScope.account.roleid == 2}">
-                <a href="<%=contextPath%>/admin/category/list">Trang Quản trị</a>
-            </c:if>
             <a href="<%=contextPath%>/account/orders">Đơn hàng</a>
         </nav>
         <div class="profile-account">
-            <span>Xin chào, <strong><c:out value="${sessionScope.account.fullName}" default="${sessionScope.account.userName}"/></strong></span>
+            <c:choose>
+                <c:when test="${not empty profileUser.avatar && (fn:startsWith(profileUser.avatar, 'http://') || fn:startsWith(profileUser.avatar, 'https://'))}">
+                    <img src="${profileUser.avatar}" alt="Avatar" class="header-avatar-circle">
+                </c:when>
+                <c:when test="${not empty profileUser.avatar}">
+                    <c:url value="/image" var="headAvatarUrl">
+                        <c:param name="fname" value="${profileUser.avatar}"/>
+                    </c:url>
+                    <img src="${headAvatarUrl}" alt="Avatar" class="header-avatar-circle">
+                </c:when>
+                <c:otherwise>
+                    <i class="fa-solid fa-circle-user" style="font-size: 24px; color: #64748b;"></i>
+                </c:otherwise>
+            </c:choose>
+            <span class="user-greeting"><c:out value="${sessionScope.account.fullName}" default="${sessionScope.account.userName}"/></span>
             <a class="logout-link" href="<%=contextPath%>/logout"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
         </div>
     </header>

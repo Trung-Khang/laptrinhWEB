@@ -44,6 +44,10 @@ public class ProfileController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User account = currentAccount(request, response);
         if (account == null) return;
+        if (com.baitap.model.UserRole.canAccessAdmin(account.getRoleid())) {
+            response.sendRedirect(request.getContextPath() + "/admin/category/list");
+            return;
+        }
         FlashMessage.expose(request);
         User fresh = userService.findById(account.getId());
         if (fresh == null || !fresh.isActive()) {
@@ -59,6 +63,10 @@ public class ProfileController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         User account = currentAccount(request, response);
         if (account == null) return;
+        if (com.baitap.model.UserRole.canAccessAdmin(account.getRoleid())) {
+            response.sendRedirect(request.getContextPath() + "/admin/category/list");
+            return;
+        }
         try {
             User fresh = userService.findById(account.getId());
             if (fresh == null || !fresh.isActive()) {

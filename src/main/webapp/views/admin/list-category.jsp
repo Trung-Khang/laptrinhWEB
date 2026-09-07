@@ -287,7 +287,7 @@
             </a>
         </div>
 
-        <a href="${pageContext.request.contextPath}/profile" class="sidebar-user" style="text-decoration:none;color:inherit;">
+        <div class="sidebar-user">
             <div class="avatar-circle" style="overflow:hidden;display:flex;align-items:center;justify-content:center;">
                 <c:choose>
                     <c:when test="${not empty sessionScope.account.avatar && (fn:startsWith(sessionScope.account.avatar, 'http://') || fn:startsWith(sessionScope.account.avatar, 'https://'))}">
@@ -304,19 +304,16 @@
             <div>
                 <div class="user-name">
                     <c:choose>
-                        <c:when test="${not empty sessionScope.account}">${sessionScope.account.fullName}</c:when>
+                        <c:when test="${not empty sessionScope.account}"><c:out value="${sessionScope.account.fullName}"/></c:when>
                         <c:otherwise>Admin</c:otherwise>
                     </c:choose>
                 </div>
                 <div class="user-role"><i class="fa-solid fa-circle" style="font-size:6px; vertical-align:middle;"></i>&nbsp;${sessionScope.account.roleid == 1 ? 'Administrator' : sessionScope.account.roleid == 2 ? 'Manager' : 'Customer'}</div>
             </div>
-        </a>
+        </div>
 
         <nav class="sidebar-menu">
             <div class="menu-label">Menu chính</div>
-            <a href="${pageContext.request.contextPath}/profile" class="menu-item">
-                <i class="fa-solid fa-id-badge"></i> Hồ sơ cá nhân
-            </a>
             <a href="${pageContext.request.contextPath}/admin/category/list" class="menu-item active">
                 <i class="fa-solid fa-layer-group"></i> Quản lý Danh mục
             </a>
@@ -338,11 +335,8 @@
             <h5 class="page-title">Danh Sách Danh Mục</h5>
             <div class="header-right">
                 <c:if test="${not empty sessionScope.account}">
-                    <span class="header-greeting">Xin chào, <a href="${pageContext.request.contextPath}/profile" style="color:inherit;text-decoration:underline;"><strong>${sessionScope.account.fullName}</strong></a></span>
+                    <span class="header-greeting">Xin chào, <strong><c:out value="${sessionScope.account.fullName}"/></strong></span>
                 </c:if>
-                <a href="${pageContext.request.contextPath}/profile" class="btn btn-outline-primary btn-sm btn-icon">
-                    <i class="fa-solid fa-user"></i> Hồ sơ
-                </a>
                 <a href="${pageContext.request.contextPath}/logout" class="btn btn-outline-danger btn-sm btn-icon">
                     <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
                 </a>

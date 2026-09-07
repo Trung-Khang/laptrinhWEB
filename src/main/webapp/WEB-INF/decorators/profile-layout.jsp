@@ -22,13 +22,10 @@
             <a href="<%=contextPath%>/home">Trang chủ</a>
             <a href="<%=contextPath%>/product">Sản phẩm</a>
             <a class="active" href="<%=contextPath%>/profile">Hồ sơ</a>
-            <c:if test="${sessionScope.account.roleid == 1 || sessionScope.account.roleid == 2}">
-                <a href="<%=contextPath%>/admin/category/list">Trang Quản trị</a>
-            </c:if>
             <a href="<%=contextPath%>/account/orders">Đơn hàng</a>
         </nav>
         <div class="profile-account">
-            <span>Xin chào, <strong><c:out value="${sessionScope.account.fullName}" default="${sessionScope.account.userName}"/></strong></span>
+            <span class="user-greeting"><c:out value="${sessionScope.account.fullName}" default="${sessionScope.account.userName}"/></span>
             <a class="logout-link" href="<%=contextPath%>/logout"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
         </div>
     </header>

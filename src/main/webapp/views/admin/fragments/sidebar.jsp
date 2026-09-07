@@ -5,7 +5,6 @@
         <img class="admin-logo" src="${pageContext.request.contextPath}/assets/images/khanggear-logo.png" alt="KhangGear">
     </a>
     <nav class="admin-nav" aria-label="Điều hướng quản trị">
-        <a class="${requestScope.activeMenu == 'profile' ? 'active' : ''}" href="${pageContext.request.contextPath}/profile">Hồ sơ cá nhân</a>
         <a class="${requestScope.activeMenu == 'category' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/category/list">Danh mục</a>
         <a class="${requestScope.activeMenu == 'product' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/product/list">Sản phẩm</a>
         <a class="${requestScope.activeMenu == 'order' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/order/list">Đơn hàng</a>
