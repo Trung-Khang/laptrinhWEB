@@ -298,4 +298,12 @@ Migration cần chạy: sql/05-product-pagination-and-account-otp.sql. Migration
 
 Công nghệ bổ sung/được dùng trong giai đoạn này: Jakarta Persistence annotations trên `User`, Hibernate EntityManager qua persistence unit hiện có, repository `JpaProfileRepository`, migration `sql/06-user-profile-jpa-migration.sql` để bổ sung idempotent cột `phone` và `avatar` cho database cũ.
 
+### Cập nhật 07-09-2026: User Profile Giai đoạn 2 (SiteMesh & Giao diện Profile)
+
+Đã tích hợp SiteMesh 3 (`org.sitemesh:sitemesh:3.2.1` tương thích Jakarta Servlet 6.0/Tomcat 11) để quản lý layout và decorator cho giao diện người dùng:
+- Route `/profile`: GET hiển thị hồ sơ người dùng (`fullname`, `phone`, `avatar` hiện có), POST cập nhật họ tên và số điện thoại qua JPA transaction.
+- Giao diện JSP và Decorator: `WEB-INF/decorators/profile-layout.jsp` quản lý layout dùng chung (header, menu có link Hồ sơ, thông tin đăng nhập, đăng xuất); nội dung form đặt tại `WEB-INF/views/profile.jsp`.
+- Đồng bộ dữ liệu session `account` sau cập nhật, áp dụng mô hình Post/Redirect/Get (PRG) và flash message.
+- Công nghệ bổ sung: SiteMesh 3.2.1 (Jakarta EE compatible), `WEB-INF/sitemesh3.xml`, JSP/JSTL, CSS giao diện hồ sơ.
+
 
