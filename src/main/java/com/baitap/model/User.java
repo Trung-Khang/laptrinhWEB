@@ -22,7 +22,7 @@ public class User {
     @Column(name = "username", length = 100)
     private String userName;
 
-    @Column(name = "fullname", length = 150)
+    @Column(name = "fullname", columnDefinition = "NVARCHAR(255)")
     private String fullName;
 
     @Column(name = "password", length = 255)
