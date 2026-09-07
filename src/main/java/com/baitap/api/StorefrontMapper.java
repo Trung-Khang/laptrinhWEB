@@ -50,9 +50,10 @@ final class StorefrontMapper {
         return contextPath + "/image?fname=" + encoded + version;
     }
 
-    static UserProfileDto profile(User user) {
+    static UserProfileDto profile(User user, String contextPath) {
         return new UserProfileDto(user.getId(), user.getUserName(), user.getFullName(), user.getEmail(), user.getPhone(),
-                com.baitap.model.UserRole.label(user.getRoleid()));
+                com.baitap.model.UserRole.label(user.getRoleid()), user.getAvatar(),
+                publicImageUrl(contextPath, user.getAvatar()));
     }
 
     static OrderDto order(Order order) {

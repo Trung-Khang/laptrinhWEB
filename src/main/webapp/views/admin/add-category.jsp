@@ -1,4 +1,4 @@
-﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html lang="vi">
@@ -296,6 +296,7 @@
 
         <nav class="sidebar-menu">
             <div class="menu-label">Menu chính</div>
+            <a href="${pageContext.request.contextPath}/profile" class="menu-item"><i class="fa-solid fa-id-badge"></i> Hồ sơ cá nhân</a>
             <a href="${pageContext.request.contextPath}/admin/category/list" class="menu-item active">
                 <i class="fa-solid fa-layer-group"></i> Quản lý Danh mục
             </a>
@@ -317,8 +318,11 @@
             <h5 class="page-title">Thêm Danh Mục Mới</h5>
             <div class="header-right">
                 <c:if test="${not empty sessionScope.account}">
-                    <span class="header-greeting">Xin chào, <strong>${sessionScope.account.fullName}</strong></span>
+                    <span class="header-greeting">Xin chào, <a href="${pageContext.request.contextPath}/profile" style="color:inherit;text-decoration:underline;"><strong>${sessionScope.account.fullName}</strong></a></span>
                 </c:if>
+                <a href="${pageContext.request.contextPath}/profile" class="btn btn-outline-primary btn-sm btn-icon">
+                    <i class="fa-solid fa-user"></i> Hồ sơ
+                </a>
                 <a href="${pageContext.request.contextPath}/logout" class="btn btn-outline-danger btn-sm btn-icon">
                     <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
                 </a>

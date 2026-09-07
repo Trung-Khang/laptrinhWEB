@@ -22,7 +22,7 @@ public class AccountApiController extends BaseApiServlet {
         User user = requireUser(request, response); if (user == null) return;
         try {
             String path = request.getPathInfo();
-            if ("/profile".equals(path)) { ok(response, StorefrontMapper.profile(user)); return; }
+            if ("/profile".equals(path)) { ok(response, StorefrontMapper.profile(user, request.getContextPath())); return; }
             if ("/orders".equals(path)) { ok(response, repository.ordersForUser(user.getId()).stream().map(StorefrontMapper::order).toList()); return; }
             int orderId = orderId(path); Order order = repository.orderForUser(orderId, user.getId());
             if (order == null) { error(response, 404, "Khong tim thay don hang."); return; }
@@ -41,7 +41,7 @@ public class AccountApiController extends BaseApiServlet {
                 user.setFullName(string(body, "fullName")); user.setEmail(string(body, "email")); user.setPhone(string(body, "phone"));
                 userService.updateProfile(user);
                 request.getSession().setAttribute("account", user);
-                ok(response, StorefrontMapper.profile(user)); return;
+                ok(response, StorefrontMapper.profile(user, request.getContextPath())); return;
             }
             if (path != null && path.endsWith("/cancel")) {
                 int id = orderId(path.substring(0, path.length() - "/cancel".length()));

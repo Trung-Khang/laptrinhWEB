@@ -12,5 +12,7 @@ BEGIN
     BEGIN
         ALTER TABLE dbo.[User] ADD avatar NVARCHAR(500) NULL;
     END;
+
+    ALTER TABLE dbo.[User] ALTER COLUMN fullname NVARCHAR(255) NULL;
 END;
 GO

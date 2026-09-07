@@ -41,7 +41,59 @@ export default function AccountPage({ tab }) {
   return <div className="kg-page-width kg-account-page"><div className="kg-account-tabs"><Link className={tab === 'profile' ? 'kg-tab-active' : ''} to="/account/profile"><UserRound size={18} /> {text.profileTab}</Link><Link className={tab !== 'profile' ? 'kg-tab-active' : ''} to="/account/orders"><ClipboardList size={18} /> {text.orderTab}</Link></div>{tab === 'profile' ? <Profile profile={profile} setProfile={setProfile} notify={notify} /> : tab === 'orders' ? <Orders orders={orders} /> : <OrderDetail detail={detail} onCancel={cancel} />}</div>
 }
 
-function Profile({ profile, setProfile, notify }) { const [form, setForm] = useState(profile); const [saving, setSaving] = useState(false); useEffect(() => setForm(profile), [profile]); const save = async (event) => { event.preventDefault(); setSaving(true); try { const next = await storefrontApi.updateProfile(form); setProfile(next); notify(text.profileSaved) } catch (error) { notify(error.message) } finally { setSaving(false) } }; return <div className="kg-profile-layout"><section className="kg-profile-card"><div className="kg-avatar"><UserRound size={34} /></div><p>{text.account}</p><h1>{profile.fullName || profile.username}</h1><span>{profile.role}</span></section><form className="kg-profile-form" onSubmit={save}><div className="kg-section-heading"><div><p className="kg-eyebrow">{text.accountInfo}</p><h2>{text.yourProfile}</h2></div></div><label>{text.username}<input value={form.username} disabled /></label><label>{text.fullName}<input required value={form.fullName || ''} onChange={(event) => setForm({ ...form, fullName: event.target.value })} /></label><label>Email<input required type="email" value={form.email || ''} onChange={(event) => setForm({ ...form, email: event.target.value })} /></label><label>{text.phone}<input value={form.phone || ''} onChange={(event) => setForm({ ...form, phone: event.target.value })} /></label><button className="kg-button kg-button-primary" disabled={saving}><Save size={18} /> {saving ? text.saving : text.save}</button></form></div> }
+function Profile({ profile, setProfile, notify }) {
+  const [form, setForm] = useState(profile);
+  const [saving, setSaving] = useState(false);
+  useEffect(() => setForm(profile), [profile]);
+  const save = async (event) => {
+    event.preventDefault();
+    setSaving(true);
+    try {
+      const next = await storefrontApi.updateProfile(form);
+      setProfile(next);
+      notify(text.profileSaved);
+    } catch (error) {
+      notify(error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+  return (
+    <div className="kg-profile-layout">
+      <section className="kg-profile-card">
+        <div className="kg-avatar" style={{overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+          {profile.avatarUrl ? (
+            <img src={profile.avatarUrl} alt="Avatar" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+          ) : (
+            <UserRound size={34} />
+          )}
+        </div>
+        <p>{text.account}</p>
+        <h1>{profile.fullName || profile.username}</h1>
+        <span>{profile.role}</span>
+        <a href={`${apiBase}/profile`} className="kg-button kg-button-primary" style={{marginTop: '16px', width: '100%', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '13px'}}>
+          <UserRound size={16} /> Mở Hồ sơ SiteMesh & Upload Avatar
+        </a>
+      </section>
+      <form className="kg-profile-form" onSubmit={save}>
+        <div className="kg-section-heading">
+          <div>
+            <p className="kg-eyebrow">{text.accountInfo}</p>
+            <h2>{text.yourProfile}</h2>
+          </div>
+          <a href={`${apiBase}/profile`} className="kg-button kg-button-secondary" style={{textDecoration: 'none', fontSize: '12px', padding: '6px 12px'}}>
+            Cập nhật Avatar bằng SiteMesh &rarr;
+          </a>
+        </div>
+        <label>{text.username}<input value={form.username} disabled /></label>
+        <label>{text.fullName}<input required value={form.fullName || ''} onChange={(event) => setForm({ ...form, fullName: event.target.value })} /></label>
+        <label>Email<input required type="email" value={form.email || ''} onChange={(event) => setForm({ ...form, email: event.target.value })} /></label>
+        <label>{text.phone}<input value={form.phone || ''} onChange={(event) => setForm({ ...form, phone: event.target.value })} /></label>
+        <button className="kg-button kg-button-primary" disabled={saving}><Save size={18} /> {saving ? text.saving : text.save}</button>
+      </form>
+    </div>
+  );
+}
 
 function Orders({ orders }) { if (!orders) return <div className="kg-detail-skeleton" />; if (orders.length === 0) return <div className="kg-empty-state"><ClipboardList size={42} /><h1>{text.emptyOrders}</h1><Link className="kg-button kg-button-primary" to="/products">{text.shopNow}</Link></div>; return <section className="kg-orders"><div className="kg-section-heading"><div><p className="kg-eyebrow">{text.history}</p><h1>{text.orderTab}</h1></div></div>{orders.map((order) => <Link className="kg-order-row" to={`/account/orders/${order.id}`} key={order.id}><div><b>{text.order} #{order.id}</b><span>{new Date(order.orderDate).toLocaleDateString('vi-VN')}</span></div><span className={`kg-status kg-status-${order.status}`}>{statusLabel(order.status)}</span><strong>{money(order.totalAmount)}</strong><ChevronRight size={19} /></Link>)}</section> }
 

@@ -27,7 +27,7 @@ public final class StorefrontDtos {
                                   String note, String paymentMethod) { }
 
     public record UserProfileDto(int id, String username, String fullName, String email,
-                                 String phone, String role) { }
+                                 String phone, String role, String avatar, String avatarUrl) { }
 
     public record OrderItemDto(Integer id, ProductDto product, int quantity,
                                BigDecimal unitPrice, BigDecimal subtotal) { }

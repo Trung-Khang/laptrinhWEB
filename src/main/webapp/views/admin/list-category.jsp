@@ -1,5 +1,6 @@
-﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -286,9 +287,19 @@
             </a>
         </div>
 
-        <div class="sidebar-user">
-            <div class="avatar-circle">
-                <i class="fa-solid fa-user"></i>
+        <a href="${pageContext.request.contextPath}/profile" class="sidebar-user" style="text-decoration:none;color:inherit;">
+            <div class="avatar-circle" style="overflow:hidden;display:flex;align-items:center;justify-content:center;">
+                <c:choose>
+                    <c:when test="${not empty sessionScope.account.avatar && (fn:startsWith(sessionScope.account.avatar, 'http://') || fn:startsWith(sessionScope.account.avatar, 'https://'))}">
+                        <img src="${sessionScope.account.avatar}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                    </c:when>
+                    <c:when test="${not empty sessionScope.account.avatar}">
+                        <img src="${pageContext.request.contextPath}/image?fname=${sessionScope.account.avatar}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                    </c:when>
+                    <c:otherwise>
+                        <i class="fa-solid fa-user"></i>
+                    </c:otherwise>
+                </c:choose>
             </div>
             <div>
                 <div class="user-name">
@@ -299,10 +310,13 @@
                 </div>
                 <div class="user-role"><i class="fa-solid fa-circle" style="font-size:6px; vertical-align:middle;"></i>&nbsp;${sessionScope.account.roleid == 1 ? 'Administrator' : sessionScope.account.roleid == 2 ? 'Manager' : 'Customer'}</div>
             </div>
-        </div>
+        </a>
 
         <nav class="sidebar-menu">
             <div class="menu-label">Menu chính</div>
+            <a href="${pageContext.request.contextPath}/profile" class="menu-item">
+                <i class="fa-solid fa-id-badge"></i> Hồ sơ cá nhân
+            </a>
             <a href="${pageContext.request.contextPath}/admin/category/list" class="menu-item active">
                 <i class="fa-solid fa-layer-group"></i> Quản lý Danh mục
             </a>
@@ -324,8 +338,11 @@
             <h5 class="page-title">Danh Sách Danh Mục</h5>
             <div class="header-right">
                 <c:if test="${not empty sessionScope.account}">
-                    <span class="header-greeting">Xin chào, <strong>${sessionScope.account.fullName}</strong></span>
+                    <span class="header-greeting">Xin chào, <a href="${pageContext.request.contextPath}/profile" style="color:inherit;text-decoration:underline;"><strong>${sessionScope.account.fullName}</strong></a></span>
                 </c:if>
+                <a href="${pageContext.request.contextPath}/profile" class="btn btn-outline-primary btn-sm btn-icon">
+                    <i class="fa-solid fa-user"></i> Hồ sơ
+                </a>
                 <a href="${pageContext.request.contextPath}/logout" class="btn btn-outline-danger btn-sm btn-icon">
                     <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
                 </a>
@@ -335,7 +352,6 @@
         <main class="main-content">
             <c:if test="${not empty param.message}"><div class="alert alert-success"><c:out value="${param.message}"/></div></c:if>
             <c:if test="${not empty param.error}"><div class="alert alert-danger"><c:out value="${param.error}"/></div></c:if>
-            <div class="card">
                 <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
                     <h5 class="mb-0 fw-semibold"><i class="fa-solid fa-table-list me-2 text-primary"></i>Danh mục sản phẩm</h5>
                     <div class="d-flex flex-wrap align-items-center gap-2">

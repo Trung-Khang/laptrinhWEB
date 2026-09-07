@@ -1,4 +1,4 @@
-﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
@@ -48,9 +48,10 @@
 <body>
 <aside class="sidebar">
     <div class="sidebar-brand"><a href="${pageContext.request.contextPath}/admin/category/list" aria-label="KhangGear Admin"><img class="sidebar-logo" src="${pageContext.request.contextPath}/assets/images/khanggear-logo.png" alt="KhangGear"></a></div>
-    <div class="sidebar-user"><div class="avatar-circle"><i class="fa-solid fa-user"></i></div><div><div class="user-name"><c:out value="${sessionScope.account.fullName}" default="Admin"/></div><div class="user-role">● ${sessionScope.account.roleid == 1 ? 'Administrator' : sessionScope.account.roleid == 2 ? 'Manager' : 'Customer'}</div></div></div>
+    <a href="${pageContext.request.contextPath}/profile" class="sidebar-user" style="text-decoration:none;color:inherit;"><div class="avatar-circle"><i class="fa-solid fa-user"></i></div><div><div class="user-name"><c:out value="${sessionScope.account.fullName}" default="Admin"/></div><div class="user-role">● ${sessionScope.account.roleid == 1 ? 'Administrator' : sessionScope.account.roleid == 2 ? 'Manager' : 'Customer'}</div></div></a>
     <nav class="sidebar-menu">
         <div class="menu-label">Menu chính</div>
+        <a href="${pageContext.request.contextPath}/profile" class="menu-item"><i class="fa-solid fa-id-badge"></i> Hồ sơ cá nhân</a>
         <a href="${pageContext.request.contextPath}/admin/category/list" class="menu-item"><i class="fa-solid fa-layer-group"></i> Quản lý Danh mục</a>
         <a href="${pageContext.request.contextPath}/admin/product/list" class="menu-item active"><i class="fa-solid fa-box"></i> Quản lý Sản phẩm</a>
         <a href="${pageContext.request.contextPath}/admin/order/list" class="menu-item"><i class="fa-solid fa-cart-shopping"></i> Quản lý Đơn hàng</a>
@@ -63,7 +64,7 @@
 <div class="main-wrapper">
     <header class="top-header">
         <h5 class="page-title">Danh Sách Sản Phẩm</h5>
-        <div><c:if test="${not empty sessionScope.account}">Xin chào, <strong><c:out value="${sessionScope.account.fullName}"/></strong></c:if> <a href="${pageContext.request.contextPath}/logout" class="btn btn-outline-danger btn-sm ms-3 btn-icon"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a></div>
+        <div><c:if test="${not empty sessionScope.account}">Xin chào, <a href="${pageContext.request.contextPath}/profile" style="color:inherit;text-decoration:underline;"><strong><c:out value="${sessionScope.account.fullName}"/></strong></a></c:if> <a href="${pageContext.request.contextPath}/profile" class="btn btn-outline-primary btn-sm ms-2 btn-icon"><i class="fa-solid fa-user"></i> Hồ sơ</a> <a href="${pageContext.request.contextPath}/logout" class="btn btn-outline-danger btn-sm ms-2 btn-icon"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a></div>
     </header>
     <main class="main-content">
         <c:if test="${not empty param.message}"><div class="alert alert-success"><c:out value="${param.message}"/></div></c:if>
