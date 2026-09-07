@@ -288,18 +288,8 @@
         </div>
 
         <div class="sidebar-user">
-            <div class="avatar-circle" style="overflow:hidden;display:flex;align-items:center;justify-content:center;">
-                <c:choose>
-                    <c:when test="${not empty sessionScope.account.avatar && (fn:startsWith(sessionScope.account.avatar, 'http://') || fn:startsWith(sessionScope.account.avatar, 'https://'))}">
-                        <img src="${sessionScope.account.avatar}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
-                    </c:when>
-                    <c:when test="${not empty sessionScope.account.avatar}">
-                        <img src="${pageContext.request.contextPath}/image?fname=${sessionScope.account.avatar}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
-                    </c:when>
-                    <c:otherwise>
-                        <i class="fa-solid fa-user"></i>
-                    </c:otherwise>
-                </c:choose>
+            <div class="avatar-circle">
+                <i class="fa-solid fa-user"></i>
             </div>
             <div>
                 <div class="user-name">
