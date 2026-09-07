@@ -1,18 +1,49 @@
 package com.baitap.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.sql.Date;
 
+@Entity(name = "AppUser")
+@Table(name = "[User]", schema = "dbo")
 public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int id;
+
+    @Column(name = "email", length = 150)
     private String email;
+
+    @Column(name = "username", length = 100)
     private String userName;
+
+    @Column(name = "fullname", length = 150)
     private String fullName;
+
+    @Column(name = "password", length = 255)
     private String password;
+
+    @Column(name = "avatar", length = 500)
     private String avatar;
+
+    @Column(name = "roleid")
     private int roleid;
+
+    @Column(name = "active")
     private boolean active = true;
+
+    @Column(name = "email_verified")
     private boolean emailVerified = true;
+
+    @Column(name = "phone", length = 30)
     private String phone;
+
+    @Column(name = "createddate")
     private Date createdDate;
 
     public User() {}

@@ -4,6 +4,8 @@ import com.baitap.dao.UserDao;
 import com.baitap.dao.impl.UserDaoImpl;
 import com.baitap.model.User;
 import com.baitap.model.UserRole;
+import com.baitap.profile.JpaProfileRepository;
+import com.baitap.profile.ProfileRepository;
 import com.baitap.service.UserService;
 import java.sql.Date;
 import java.util.List;
@@ -11,6 +13,7 @@ import com.baitap.security.PasswordUtil;
 
 public class UserServiceImpl implements UserService {
     private final UserDao userDao = new UserDaoImpl();
+    private final ProfileRepository profileRepository = new JpaProfileRepository();
 
     @Override public User findByUsername(String username) { return userDao.findByUsername(username); }
     @Override public User findByEmail(String email) { return userDao.findByEmail(email); }
@@ -30,7 +33,12 @@ public class UserServiceImpl implements UserService {
         if (isBlank(user.getFullName())) throw new IllegalArgumentException("Vui long nhap ho va ten.");
         if (isBlank(user.getEmail()) || !isEmail(user.getEmail())) throw new IllegalArgumentException("Email khong hop le.");
         if (userDao.existsEmailExceptId(user.getEmail(), user.getId())) throw new IllegalArgumentException("Email da ton tai.");
-        userDao.updateProfile(user);
+        if (user.getAvatar() == null) user.setAvatar(stored.getAvatar());
+        User updated = profileRepository.updateProfile(user);
+        user.setEmail(updated.getEmail());
+        user.setFullName(updated.getFullName());
+        user.setPhone(updated.getPhone());
+        user.setAvatar(updated.getAvatar());
     }
     @Override public void updateActive(int id, boolean active) { userDao.updateActive(id, active); }
 

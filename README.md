@@ -292,4 +292,10 @@ Migration cần chạy: sql/05-product-pagination-and-account-otp.sql. Migration
 
 Đăng ký lại bằng email đã có nhưng chưa xác minh không tạo thêm User. Hệ thống mở lại trang xác minh và cho gửi lại OTP sau 60 giây; OTP mới làm OTP cũ hết hiệu lực. Email được gửi dạng HTML UTF-8 với From là KhangGear <SMTP_FROM>, subject [KHANGGEAR] Mã xác nhận tạo tài khoản hoặc [KHANGGEAR] Mã xác nhận đặt lại mật khẩu.
 
+### Cập nhật 07-09-2026: User Profile Giai đoạn 1
+
+Đã bổ sung nền tảng JPA cho chức năng hồ sơ người dùng. Model `com.baitap.model.User` hiện được ánh xạ thành JPA entity tương ứng bảng `dbo.[User]`; riêng cập nhật hồ sơ dùng repository JPA transaction để lưu `fullname`, `phone`, `avatar` và giữ tương thích email hiện có của storefront. Luồng đăng nhập, OTP, admin user vẫn tiếp tục dùng JDBC ở các phần cũ để tránh thay đổi nghiệp vụ ngoài phạm vi.
+
+Công nghệ bổ sung/được dùng trong giai đoạn này: Jakarta Persistence annotations trên `User`, Hibernate EntityManager qua persistence unit hiện có, repository `JpaProfileRepository`, migration `sql/06-user-profile-jpa-migration.sql` để bổ sung idempotent cột `phone` và `avatar` cho database cũ.
+
 
