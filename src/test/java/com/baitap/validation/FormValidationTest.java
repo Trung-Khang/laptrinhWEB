@@ -74,4 +74,26 @@ class FormValidationTest {
         FormValidation.otp(errors, "otp", "123456", 6);
         assertTrue(errors.isEmpty());
     }
+
+    @Test
+    void rejectsAnEmailThatExceedsTheDatabaseSafeLength() {
+        Map<String, String> errors = new LinkedHashMap<>();
+        String email = "a".repeat(250) + "@example.com";
+
+        FormValidation.email(errors, "email", email);
+
+        assertTrue(errors.containsKey("email"));
+    }
+
+    @Test
+    void validatesCheckoutContactFieldsWithTheSharedRules() {
+        Map<String, String> errors = new LinkedHashMap<>();
+
+        FormValidation.required(errors, "fullName", "Nguyen Van A", "ho va ten");
+        FormValidation.optionalPhone(errors, "phone", "0912345678");
+        FormValidation.email(errors, "email", "customer@example.com");
+        FormValidation.required(errors, "address", "1 Duong So 1", "dia chi giao hang");
+
+        assertTrue(errors.isEmpty());
+    }
 }

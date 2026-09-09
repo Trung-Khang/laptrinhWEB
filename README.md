@@ -6,6 +6,8 @@ BÀI TẬP MÔN LẬP TRÌNH WEB: Hệ Thống Quản Trị & Cửa Hàng KhangG
 
 ---
 
+> Validation: HTML5 ho tro va server-side `FormValidation` bao ve account, OTP, Profile, Category, Product, User admin va checkout. Email duoc gioi han 255 ky tu truoc khi ghi database; anh upload chi duoc luu sau khi validation hop le.
+
 Tài khoản đăng nhập quyền quản trị viên/quản lý test thử: admin|pass: 123 hoặc manager|pass: 123
 Tài khoản User tự tạo và phải điền email thật để hệ thống gửi otp kích hoạt tài khoản
 

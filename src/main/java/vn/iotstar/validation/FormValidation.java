@@ -38,6 +38,7 @@ public final class FormValidation {
     public static void email(Map<String, String> errors, String field, String value) {
         String normalized = trim(value);
         required(errors, field, normalized, "email");
+        maxLength(errors, field, normalized, 255, "Email");
         if (!normalized.isEmpty() && !EMAIL.matcher(normalized).matches()) {
             errors.putIfAbsent(field, "Email không đúng định dạng.");
         }
