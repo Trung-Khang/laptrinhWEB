@@ -11,6 +11,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import vn.iotstar.validation.FormValidation;
 
 @WebServlet(urlPatterns = "/register")
 public class RegisterController extends HttpServlet {
@@ -25,6 +28,17 @@ public class RegisterController extends HttpServlet {
         user.setUserName(req.getParameter("username")); user.setPassword(req.getParameter("password"));
         user.setEmail(req.getParameter("email")); user.setFullName(req.getParameter("fullname")); user.setPhone(req.getParameter("phone"));
         try {
+            Map<String, String> errors = new LinkedHashMap<>();
+            FormValidation.username(errors, "username", user.getUserName());
+            FormValidation.email(errors, "email", user.getEmail());
+            FormValidation.password(errors, "password", user.getPassword(), 3);
+            FormValidation.confirmation(errors, "confirmPassword", req.getParameter("confirmPassword"), user.getPassword());
+            FormValidation.maxLength(errors, "fullname", user.getFullName(), 150, "Họ và tên");
+            FormValidation.optionalPhone(errors, "phone", user.getPhone());
+            if (!errors.isEmpty()) {
+                req.setAttribute("fieldErrors", errors); req.setAttribute("formUser", user);
+                req.getRequestDispatcher("/WEB-INF/views/register.jsp").forward(req, resp); return;
+            }
             User existing = userService.findByEmail(user.getEmail() == null ? "" : user.getEmail().trim());
             if (existing != null) {
                 if (!existing.isEmailVerified()) {

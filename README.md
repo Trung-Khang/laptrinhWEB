@@ -351,3 +351,28 @@ Công nghệ bổ sung/được dùng trong giai đoạn này: Jakarta Persisten
    - **Trang `/account/profile` (React):** Bổ sung nút nổi bật "Mở Hồ sơ SiteMesh & Upload Avatar", đồng thời hiển thị avatar đã upload của người dùng từ API `/api/account/profile`.
    - **Giao diện Quản trị Admin & Manager:** Bổ sung mục menu "Hồ sơ cá nhân" trên Sidebar, liên kết tên tài khoản và nút "Hồ sơ" trên Header để admin/manager dễ dàng cập nhật thông tin và avatar.
    - **Layout SiteMesh (`profile-layout.jsp`):** Bổ sung nút "Trang Quản trị" dành cho tài khoản có quyền Admin hoặc Manager để chuyển đổi qua lại thuận tiện.
+
+   
+### Cập nhật 09-09-2026: SiteMesh Decorator 3 cho Bài tập 03
+
+- Sử dụng `org.sitemesh:sitemesh:3.3.0-RC1`, tương thích Jakarta Servlet/Tomcat 11.
+- SiteMesh chỉ map nhóm `/admin/category/*` của Bài tập 03; React storefront, API, login, OTP và Profile không bị decorator can thiệp.
+- Template Bootstrap dùng chung: `WEB-INF/decorators/exercise03-bootstrap.jsp`; cấu hình tại `WEB-INF/sitemesh3.xml`.
+
+- Bài tập 03 đã áp dụng decorator cho các route `/admin/category/list`, `/admin/category/add` và `/admin/category/edit`; các JSP tương ứng chỉ còn phần nội dung, không lặp lại `html/head/body`.
+- Các commit SiteMesh: đã tích hợp Bài tập 03.
+-
+### Cập nhật: Validation Category và Product
+
+### Cập nhật: Validation Account và Profile
+
+- Bổ sung validation server-side dùng chung cho đăng ký, đăng nhập, OTP/quên mật khẩu, đặt lại mật khẩu, Profile JSP và API `/api/account/profile`.
+- Lỗi được trả theo field, giữ dữ liệu nhập hợp lệ; avatar chỉ được lưu sau khi validation thành công.
+
+### Cập nhật: Validation form nghiệp vụ
+
+- Bổ sung validation server-side cho form User admin và checkout/order bằng `FormValidation`.
+- Checkout kiểm tra lại sản phẩm, giá, tồn kho và số lượng trong transaction database; chỉ hỗ trợ `COD` và `BANK_TRANSFER`, lỗi trả theo `fieldErrors`.
+
+- Bổ sung server-side validation dùng chung tại `vn.iotstar.validation`, áp dụng cho tên, số, category, URL ảnh và multipart image.
+- Form Category và Product giữ dữ liệu nhập lại, hiển thị lỗi tiếng Việt theo field và chỉ lưu upload sau khi toàn bộ dữ liệu hợp lệ.

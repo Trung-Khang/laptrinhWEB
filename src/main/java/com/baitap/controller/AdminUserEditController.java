@@ -10,6 +10,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import vn.iotstar.validation.FormValidation;
 
 @WebServlet(urlPatterns = "/admin/user/edit")
 public class AdminUserEditController extends HttpServlet {
@@ -26,6 +29,10 @@ public class AdminUserEditController extends HttpServlet {
         stored.setPassword(req.getParameter("password")); stored.setActive(!"false".equals(req.getParameter("active")));
         try { stored.setRoleid(Integer.parseInt(req.getParameter("roleid"))); } catch (Exception e) { stored.setRoleid(0); }
         try {
+            Map<String, String> errors = new LinkedHashMap<>();
+            FormValidation.email(errors, "email", stored.getEmail()); FormValidation.maxLength(errors, "fullname", stored.getFullName(), 150, "Họ và tên"); FormValidation.optionalPhone(errors, "phone", stored.getPhone());
+            if (!com.baitap.model.UserRole.isValid(stored.getRoleid())) errors.put("roleid", "Role không hợp lệ.");
+            if (!errors.isEmpty()) { req.setAttribute("fieldErrors", errors); req.setAttribute("editingUser", stored); req.getRequestDispatcher("/views/admin/edit-user.jsp").forward(req, resp); return; }
             userService.updateByAdmin(stored);
             FlashMessage.success(req, "Cập nhật người dùng thành công.");
             resp.sendRedirect(req.getContextPath() + "/admin/user/list");
