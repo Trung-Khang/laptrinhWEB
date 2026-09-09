@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sitemesh>
-  <mapping path="/*" decorator="/WEB-INF/decorators/profile-layout.jsp"/>
+  <!-- Narrow mapping: React storefront, JSON API, auth and Profile are untouched. -->
+  <mapping path="/admin/category/*" decorator="/exercise03-bootstrap.jsp"/>
 </sitemesh>
