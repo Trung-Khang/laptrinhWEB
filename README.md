@@ -361,3 +361,8 @@ Công nghệ bổ sung/được dùng trong giai đoạn này: Jakarta Persisten
 
 - Bài tập 03 đã áp dụng decorator cho các route `/admin/category/list`, `/admin/category/add` và `/admin/category/edit`; các JSP tương ứng chỉ còn phần nội dung, không lặp lại `html/head/body`.
 - Các commit SiteMesh: đã tích hợp Bài tập 03.
+-
+### Cập nhật: Validation Category và Product
+
+- Bổ sung server-side validation dùng chung tại `vn.iotstar.validation`, áp dụng cho tên, số, category, URL ảnh và multipart image.
+- Form Category và Product giữ dữ liệu nhập lại, hiển thị lỗi tiếng Việt theo field và chỉ lưu upload sau khi toàn bộ dữ liệu hợp lệ.
