@@ -351,3 +351,8 @@ Công nghệ bổ sung/được dùng trong giai đoạn này: Jakarta Persisten
    - **Trang `/account/profile` (React):** Bổ sung nút nổi bật "Mở Hồ sơ SiteMesh & Upload Avatar", đồng thời hiển thị avatar đã upload của người dùng từ API `/api/account/profile`.
    - **Giao diện Quản trị Admin & Manager:** Bổ sung mục menu "Hồ sơ cá nhân" trên Sidebar, liên kết tên tài khoản và nút "Hồ sơ" trên Header để admin/manager dễ dàng cập nhật thông tin và avatar.
    - **Layout SiteMesh (`profile-layout.jsp`):** Bổ sung nút "Trang Quản trị" dành cho tài khoản có quyền Admin hoặc Manager để chuyển đổi qua lại thuận tiện.
+### Cập nhật 09-09-2026: SiteMesh Decorator 3 cho Bài tập 03
+
+- Sử dụng `org.sitemesh:sitemesh:3.3.0-RC1`, tương thích Jakarta Servlet/Tomcat 11.
+- SiteMesh chỉ map nhóm `/admin/category/*` của Bài tập 03; React storefront, API, login, OTP và Profile không bị decorator can thiệp.
+- Template Bootstrap dùng chung: `WEB-INF/decorators/exercise03-bootstrap.jsp`; cấu hình tại `WEB-INF/sitemesh3.xml`.
