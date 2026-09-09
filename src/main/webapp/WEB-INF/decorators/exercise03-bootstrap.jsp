@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="sitemesh" uri="http://www.opensymphony.com/sitemesh/decorator" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -9,7 +10,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-layout.css">
-    <% out.write("<sitemesh:write property=\"head\"/>"); %>
+    <sitemesh:write property="head"/>
     <style>
         body { background: #f4f6f9; }
         .exercise03-navbar { background: #0d6efd; }
@@ -46,7 +47,7 @@
     </nav>
 
     <main class="container-fluid exercise03-shell exercise03-content">
-        <% out.write("<sitemesh:write property=\"body\"/>"); %>
+        <sitemesh:write property="body"/>
     </main>
 
     <footer class="exercise03-footer py-3">
