@@ -51,4 +51,27 @@ class FormValidationTest {
         FormValidation.validateImageUrl(errors, "imageUrl", "javascript:alert(1)");
         assertTrue(errors.get("imageUrl").contains("http://"));
     }
+
+    @Test
+    void validatesAccountFieldsAndPasswordConfirmation() {
+        Map<String, String> errors = new LinkedHashMap<>();
+        FormValidation.username(errors, "username", "bad name");
+        FormValidation.email(errors, "email", "invalid-email");
+        FormValidation.password(errors, "password", "123", 6);
+        FormValidation.confirmation(errors, "confirmPassword", "654321", "123456");
+        FormValidation.optionalPhone(errors, "phone", "abc");
+        assertTrue(errors.keySet().containsAll(java.util.Set.of("username", "email", "password", "confirmPassword", "phone")));
+    }
+
+    @Test
+    void acceptsValidAccountFieldsAndOtp() {
+        Map<String, String> errors = new LinkedHashMap<>();
+        FormValidation.username(errors, "username", "khang.gear");
+        FormValidation.email(errors, "email", "user@example.com");
+        FormValidation.password(errors, "password", "123456", 6);
+        FormValidation.confirmation(errors, "confirmPassword", "123456", "123456");
+        FormValidation.optionalPhone(errors, "phone", "0912345678");
+        FormValidation.otp(errors, "otp", "123456", 6);
+        assertTrue(errors.isEmpty());
+    }
 }

@@ -10,6 +10,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
+import java.util.LinkedHashMap;
+import vn.iotstar.validation.FormValidation;
 import vn.iotstar.entity.Order;
 
 @WebServlet("/api/account/*")
@@ -38,7 +40,14 @@ public class AccountApiController extends BaseApiServlet {
             String path = request.getPathInfo();
             if ("/profile".equals(path)) {
                 JsonObject body = readBody(request);
-                user.setFullName(string(body, "fullName")); user.setEmail(string(body, "email")); user.setPhone(string(body, "phone"));
+                String fullName = string(body, "fullName"); String email = string(body, "email"); String phone = string(body, "phone");
+                Map<String, String> fieldErrors = new LinkedHashMap<>();
+                FormValidation.required(fieldErrors, "fullName", fullName, "họ và tên");
+                FormValidation.maxLength(fieldErrors, "fullName", fullName, 150, "Họ và tên");
+                FormValidation.email(fieldErrors, "email", email);
+                FormValidation.optionalPhone(fieldErrors, "phone", phone);
+                if (!fieldErrors.isEmpty()) { error(response, 400, "Dữ liệu hồ sơ chưa hợp lệ.", fieldErrors); return; }
+                user.setFullName(fullName); user.setEmail(email); user.setPhone(phone);
                 userService.updateProfile(user);
                 request.getSession().setAttribute("account", user);
                 ok(response, StorefrontMapper.profile(user, request.getContextPath())); return;

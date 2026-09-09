@@ -12,6 +12,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import vn.iotstar.validation.FormValidation;
 
 @WebServlet(urlPatterns = "/verify-email")
 public class VerifyEmailController extends HttpServlet {
@@ -41,7 +44,15 @@ public class VerifyEmailController extends HttpServlet {
             }
             request.getRequestDispatcher("/WEB-INF/views/verify-email.jsp").forward(request, response); return;
         }
-        OtpVerifyResult result = otpService.verify(userId, OtpPurpose.REGISTER_VERIFY, request.getParameter("otp"));
+        Map<String, String> errors = new LinkedHashMap<>();
+        String otp = FormValidation.trim(request.getParameter("otp"));
+        FormValidation.otp(errors, "otp", otp, 6);
+        if (!errors.isEmpty()) {
+            request.setAttribute("fieldErrors", errors);
+            request.getRequestDispatcher("/WEB-INF/views/verify-email.jsp").forward(request, response);
+            return;
+        }
+        OtpVerifyResult result = otpService.verify(userId, OtpPurpose.REGISTER_VERIFY, otp);
         if (result == OtpVerifyResult.VERIFIED) {
             request.getSession().removeAttribute("registrationUserId");
             response.sendRedirect(request.getContextPath() + "/login?verified=1"); return;

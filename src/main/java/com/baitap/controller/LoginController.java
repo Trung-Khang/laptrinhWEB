@@ -1,10 +1,10 @@
 package com.baitap.controller;
 
 import com.baitap.model.User;
+import com.baitap.security.PasswordUtil;
 import com.baitap.service.UserService;
 import com.baitap.service.impl.UserServiceImpl;
 import com.baitap.util.LoginRedirect;
-import com.baitap.security.PasswordUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.Cookie;
@@ -13,6 +13,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import vn.iotstar.validation.FormValidation;
 
 @WebServlet(urlPatterns = "/login")
 public class LoginController extends HttpServlet {
@@ -22,10 +25,8 @@ public class LoginController extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("text/html; charset=UTF-8");
         Cookie[] cookies = req.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("username".equals(cookie.getName())) req.setAttribute("rememberedUsername", cookie.getValue());
-            }
+        if (cookies != null) for (Cookie cookie : cookies) {
+            if ("username".equals(cookie.getName())) req.setAttribute("rememberedUsername", cookie.getValue());
         }
         req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
     }
@@ -33,23 +34,29 @@ public class LoginController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
-        String username = req.getParameter("username");
+        String username = FormValidation.trim(req.getParameter("username"));
         String password = req.getParameter("password");
-        if (blank(username) || blank(password)) { showError(req, resp, "Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!", username); return; }
+        Map<String, String> fieldErrors = new LinkedHashMap<>();
+        FormValidation.required(fieldErrors, "username", username, "tên đăng nhập");
+        FormValidation.required(fieldErrors, "password", password, "mật khẩu");
+        if (!fieldErrors.isEmpty()) {
+            showError(req, resp, "Vui lòng kiểm tra thông tin đăng nhập.", username, fieldErrors);
+            return;
+        }
         try {
             User user = userService.findByUsername(username);
             if (user == null || !PasswordUtil.matches(password, user.getPassword())) {
-                showError(req, resp, "Sai tên đăng nhập, mật khẩu hoặc tài khoản đã bị khóa!", username);
+                showError(req, resp, "Sai tên đăng nhập, mật khẩu hoặc tài khoản đã bị khóa!", username, Map.of());
                 return;
             }
             if (!user.isEmailVerified()) {
                 req.getSession(true).setAttribute("registrationUserId", user.getId());
                 req.setAttribute("verificationRequired", true);
-                showError(req, resp, "Tài khoản chưa được xác minh. Vui lòng kiểm tra email để nhập mã OTP.", username);
+                showError(req, resp, "Tài khoản chưa được xác minh. Vui lòng kiểm tra email để nhập mã OTP.", username, Map.of());
                 return;
             }
             if (!user.isActive()) {
-                showError(req, resp, "Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên.", username);
+                showError(req, resp, "Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên.", username, Map.of());
                 return;
             }
             HttpSession oldSession = req.getSession(false);
@@ -65,13 +72,15 @@ public class LoginController extends HttpServlet {
             resp.sendRedirect(LoginRedirect.pathForRole(req.getContextPath(), user.getRoleid()));
         } catch (RuntimeException e) {
             getServletContext().log("Login database error", e);
-            showError(req, resp, "Không thể kết nối cơ sở dữ liệu. Vui lòng thử lại sau.", username);
+            showError(req, resp, "Không thể kết nối cơ sở dữ liệu. Vui lòng thử lại sau.", username, Map.of());
         }
     }
 
-    private void showError(HttpServletRequest req, HttpServletResponse resp, String error, String username) throws ServletException, IOException {
-        req.setAttribute("error", error); req.setAttribute("username", username);
+    private void showError(HttpServletRequest req, HttpServletResponse resp, String error, String username,
+                           Map<String, String> fieldErrors) throws ServletException, IOException {
+        req.setAttribute("error", error);
+        req.setAttribute("username", username);
+        req.setAttribute("fieldErrors", fieldErrors);
         req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
     }
-    private boolean blank(String value) { return value == null || value.trim().isEmpty(); }
 }

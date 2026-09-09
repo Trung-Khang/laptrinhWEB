@@ -3,6 +3,7 @@ package vn.iotstar.validation;
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import jakarta.servlet.http.Part;
 
@@ -11,6 +12,9 @@ public final class FormValidation {
     public static final long DEFAULT_IMAGE_MAX_BYTES = 5L * 1024 * 1024;
     private static final Set<String> IMAGE_EXTENSIONS = Set.of("jpg", "jpeg", "png", "gif", "webp");
     private static final Set<String> IMAGE_CONTENT_TYPES = Set.of("image/jpeg", "image/png", "image/gif", "image/webp");
+    private static final Pattern EMAIL = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
+    private static final Pattern USERNAME = Pattern.compile("^[A-Za-z0-9._-]+$");
+    private static final Pattern PHONE = Pattern.compile("^(0\\d{9,10}|\\+84\\d{9,10})$");
 
     private FormValidation() {
     }
@@ -28,6 +32,54 @@ public final class FormValidation {
     public static void maxLength(Map<String, String> errors, String field, String value, int max, String label) {
         if (value != null && value.trim().length() > max) {
             errors.putIfAbsent(field, label + " không được vượt quá " + max + " ký tự.");
+        }
+    }
+
+    public static void email(Map<String, String> errors, String field, String value) {
+        String normalized = trim(value);
+        required(errors, field, normalized, "email");
+        if (!normalized.isEmpty() && !EMAIL.matcher(normalized).matches()) {
+            errors.putIfAbsent(field, "Email không đúng định dạng.");
+        }
+    }
+
+    public static void username(Map<String, String> errors, String field, String value) {
+        String normalized = trim(value);
+        required(errors, field, normalized, "tên đăng nhập");
+        if (!normalized.isEmpty() && (normalized.length() < 3 || normalized.length() > 100 || !USERNAME.matcher(normalized).matches())) {
+            errors.putIfAbsent(field, "Tên đăng nhập dài 3-100 ký tự, không chứa khoảng trắng.");
+        }
+    }
+
+    public static void password(Map<String, String> errors, String field, String value, int minLength) {
+        if (value == null || value.isEmpty()) {
+            errors.putIfAbsent(field, "Vui lòng nhập mật khẩu.");
+        } else if (value.length() < minLength) {
+            errors.putIfAbsent(field, "Mật khẩu phải có ít nhất " + minLength + " ký tự.");
+        }
+    }
+
+    public static void confirmation(Map<String, String> errors, String field, String value, String expected) {
+        if (value == null || value.isEmpty()) {
+            errors.putIfAbsent(field, "Vui lòng xác nhận mật khẩu.");
+        } else if (!value.equals(expected)) {
+            errors.putIfAbsent(field, "Mật khẩu xác nhận chưa khớp.");
+        }
+    }
+
+    public static void optionalPhone(Map<String, String> errors, String field, String value) {
+        String normalized = trim(value);
+        if (!normalized.isEmpty() && !PHONE.matcher(normalized).matches()) {
+            errors.putIfAbsent(field, "Số điện thoại phải gồm 10-11 chữ số hoặc dạng +84.");
+        }
+    }
+
+    public static void otp(Map<String, String> errors, String field, String value, int length) {
+        String normalized = trim(value);
+        if (normalized.isEmpty()) {
+            errors.putIfAbsent(field, "Vui lòng nhập mã OTP.");
+        } else if (!normalized.matches("\\d{" + length + "}")) {
+            errors.putIfAbsent(field, "Mã OTP phải gồm đúng " + length + " chữ số.");
         }
     }
 

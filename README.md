@@ -364,5 +364,10 @@ Công nghệ bổ sung/được dùng trong giai đoạn này: Jakarta Persisten
 -
 ### Cập nhật: Validation Category và Product
 
+### Cập nhật: Validation Account và Profile
+
+- Bổ sung validation server-side dùng chung cho đăng ký, đăng nhập, OTP/quên mật khẩu, đặt lại mật khẩu, Profile JSP và API `/api/account/profile`.
+- Lỗi được trả theo field, giữ dữ liệu nhập hợp lệ; avatar chỉ được lưu sau khi validation thành công.
+
 - Bổ sung server-side validation dùng chung tại `vn.iotstar.validation`, áp dụng cho tên, số, category, URL ảnh và multipart image.
 - Form Category và Product giữ dữ liệu nhập lại, hiển thị lỗi tiếng Việt theo field và chỉ lưu upload sau khi toàn bộ dữ liệu hợp lệ.
