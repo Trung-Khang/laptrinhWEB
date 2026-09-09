@@ -1,5 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<!DOCTYPE html>
+<html lang="vi"><head><title>${pageTitle}</title></head><body>
 
 <div class="d-flex justify-content-between align-items-center gap-3 mb-4">
     <div><p class="text-primary text-uppercase fw-semibold small mb-1">Bài tập 03</p><h2 class="h4 mb-0">Sửa danh mục</h2></div>
@@ -23,3 +25,4 @@
         </c:choose>
     </div>
 </section>
+</body></html>

@@ -29,15 +29,15 @@ public class CategoryAddController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         setPageAttributes(req, "Thêm danh mục | KhangGear");
-        req.getRequestDispatcher("/views/admin/add-category.jsp").forward(req, resp);
+        getServletContext().getRequestDispatcher("/views/admin/add-category.jsp").include(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
         String name = FormValidation.trim(req.getParameter("name"));
-        Part part = req.getPart("icon");
         Map<String, String> errors = new LinkedHashMap<>();
+        Part part = readIconPart(req, errors);
         FormValidation.required(errors, "name", name, "tên danh mục");
         FormValidation.maxLength(errors, "name", name, 150, "Tên danh mục");
         if (!name.isEmpty() && categoryService.findByCategoryname(name) != null) {
@@ -58,12 +58,21 @@ public class CategoryAddController extends HttpServlet {
             req.setAttribute("formName", name);
             req.setAttribute("error", "Vui lòng kiểm tra lại các trường được đánh dấu.");
             setPageAttributes(req, "Thêm danh mục | KhangGear");
-            req.getRequestDispatcher("/views/admin/add-category.jsp").forward(req, resp);
+            getServletContext().getRequestDispatcher("/views/admin/add-category.jsp").include(req, resp);
         }
     }
 
     private void setPageAttributes(HttpServletRequest req, String title) {
         req.setAttribute("pageTitle", title);
         req.setAttribute("activeMenu", "category");
+    }
+
+    private Part readIconPart(HttpServletRequest request, Map<String, String> errors) {
+        try {
+            return request.getPart("icon");
+        } catch (ServletException | IOException | IllegalStateException exception) {
+            errors.put("icon", "Du lieu upload icon khong hop le.");
+            return null;
+        }
     }
 }

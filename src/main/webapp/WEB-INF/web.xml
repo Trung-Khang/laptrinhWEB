@@ -21,7 +21,6 @@
     <filter-name>sitemesh</filter-name>
     <url-pattern>/admin/category/*</url-pattern>
     <dispatcher>REQUEST</dispatcher>
-    <dispatcher>FORWARD</dispatcher>
   </filter-mapping>
 
   <!-- Welcome file -->

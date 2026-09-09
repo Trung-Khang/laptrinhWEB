@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sitemesh>
+  <dispatch-mode>include</dispatch-mode>
   <!-- Narrow mapping: React storefront, JSON API, auth and Profile are untouched. -->
-  <mapping path="/admin/category/*" decorator="/WEB-INF/decorators/exercise03-bootstrap.jsp"/>
+  <mapping path="/admin/category/*" decorator="exercise03-bootstrap.jsp"/>
 </sitemesh>

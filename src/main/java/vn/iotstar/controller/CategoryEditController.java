@@ -29,7 +29,7 @@ public class CategoryEditController extends HttpServlet {
         Category category = findCategory(req.getParameter("id"));
         req.setAttribute("category", category);
         setPageAttributes(req);
-        req.getRequestDispatcher("/views/admin/edit-category.jsp").forward(req, resp);
+        getServletContext().getRequestDispatcher("/views/admin/edit-category.jsp").include(req, resp);
     }
 
     @Override
@@ -37,9 +37,9 @@ public class CategoryEditController extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
         Integer id = parseId(req.getParameter("id"));
         String name = FormValidation.trim(req.getParameter("name"));
-        Part part = req.getPart("icon");
         Category category = id == null ? null : categoryService.findById(id);
         Map<String, String> errors = new LinkedHashMap<>();
+        Part part = readIconPart(req, errors);
 
         if (category == null) errors.put("id", "Danh mục không tồn tại.");
         FormValidation.required(errors, "name", name, "tên danh mục");
@@ -65,7 +65,7 @@ public class CategoryEditController extends HttpServlet {
             req.setAttribute("formName", name);
             req.setAttribute("error", "Vui lòng kiểm tra lại các trường được đánh dấu.");
             setPageAttributes(req);
-            req.getRequestDispatcher("/views/admin/edit-category.jsp").forward(req, resp);
+            getServletContext().getRequestDispatcher("/views/admin/edit-category.jsp").include(req, resp);
         }
     }
 
@@ -85,5 +85,14 @@ public class CategoryEditController extends HttpServlet {
     private void setPageAttributes(HttpServletRequest req) {
         req.setAttribute("pageTitle", "Sửa danh mục | KhangGear");
         req.setAttribute("activeMenu", "category");
+    }
+
+    private Part readIconPart(HttpServletRequest request, Map<String, String> errors) {
+        try {
+            return request.getPart("icon");
+        } catch (ServletException | IOException | IllegalStateException exception) {
+            errors.put("icon", "Du lieu upload icon khong hop le.");
+            return null;
+        }
     }
 }
