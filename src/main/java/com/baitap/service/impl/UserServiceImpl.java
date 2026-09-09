@@ -10,6 +10,9 @@ import com.baitap.service.UserService;
 import java.sql.Date;
 import java.util.List;
 import com.baitap.security.PasswordUtil;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import vn.iotstar.validation.FormValidation;
 
 public class UserServiceImpl implements UserService {
     private final UserDao userDao = new UserDaoImpl();
@@ -52,7 +55,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void createByAdmin(User user) {
-        normalize(user); validateNewUser(user); validateRole(user.getRoleid());
+        normalize(user); validateNewUser(user); validateAdminFields(user); validateRole(user.getRoleid());
         user.setPassword(PasswordUtil.hash(user.getPassword()));
         user.setEmailVerified(true); user.setCreatedDate(new Date(System.currentTimeMillis())); userDao.insert(user);
     }
@@ -61,7 +64,7 @@ public class UserServiceImpl implements UserService {
     public void updateByAdmin(User user) {
         User stored = userDao.findById(user.getId());
         if (stored == null) throw new IllegalArgumentException("Không tìm thấy người dùng.");
-        normalize(user);
+        normalize(user); validateAdminFields(user);
         if (isBlank(user.getEmail()) || !isEmail(user.getEmail())) throw new IllegalArgumentException("Email không hợp lệ.");
         if (userDao.existsEmailExceptId(user.getEmail(), user.getId())) throw new IllegalArgumentException("Email đã tồn tại.");
         validateRole(user.getRoleid());
@@ -114,6 +117,14 @@ public class UserServiceImpl implements UserService {
     }
 
     private void validateRole(int roleId) { if (!UserRole.isValid(roleId)) throw new IllegalArgumentException("Role chỉ có thể là ADMIN, MANAGER hoặc CUSTOMER."); }
+    private void validateAdminFields(User user) {
+        Map<String, String> errors = new LinkedHashMap<>();
+        FormValidation.email(errors, "email", user.getEmail());
+        FormValidation.maxLength(errors, "fullname", user.getFullName(), 150, "Họ và tên");
+        FormValidation.optionalPhone(errors, "phone", user.getPhone());
+        if (!errors.isEmpty()) throw new IllegalArgumentException(errors.values().iterator().next());
+    }
+
     private void normalize(User user) { user.setUserName(trim(user.getUserName())); user.setEmail(trim(user.getEmail())); user.setFullName(trim(user.getFullName())); user.setPhone(trim(user.getPhone())); }
     private String trim(String value) { return value == null ? "" : value.trim(); }
     private boolean isBlank(String value) { return value == null || value.trim().isEmpty(); }

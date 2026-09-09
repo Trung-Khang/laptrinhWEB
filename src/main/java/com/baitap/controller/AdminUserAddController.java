@@ -10,6 +10,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import vn.iotstar.validation.FormValidation;
 
 @WebServlet(urlPatterns = "/admin/user/add")
 public class AdminUserAddController extends HttpServlet {
@@ -18,6 +21,11 @@ public class AdminUserAddController extends HttpServlet {
     @Override protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8"); User user = fromRequest(req);
         try {
+            Map<String, String> errors = new LinkedHashMap<>();
+            FormValidation.username(errors, "username", user.getUserName()); FormValidation.email(errors, "email", user.getEmail());
+            FormValidation.password(errors, "password", user.getPassword(), 3); FormValidation.maxLength(errors, "fullname", user.getFullName(), 150, "Họ và tên"); FormValidation.optionalPhone(errors, "phone", user.getPhone());
+            if (!com.baitap.model.UserRole.isValid(user.getRoleid())) errors.put("roleid", "Role không hợp lệ.");
+            if (!errors.isEmpty()) { req.setAttribute("fieldErrors", errors); req.setAttribute("formUser", user); req.getRequestDispatcher("/views/admin/add-user.jsp").forward(req, resp); return; }
             userService.createByAdmin(user);
             FlashMessage.success(req, "Thêm người dùng thành công.");
             resp.sendRedirect(req.getContextPath() + "/admin/user/list");
