@@ -32,6 +32,8 @@ public class CategoryAddController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setAttribute("pageTitle", "Thêm danh mục | KhangGear");
+        req.setAttribute("activeMenu", "category");
         req.getRequestDispatcher("/views/admin/add-category.jsp").forward(req, resp);
     }
 

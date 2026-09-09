@@ -356,3 +356,5 @@ Công nghệ bổ sung/được dùng trong giai đoạn này: Jakarta Persisten
 - Sử dụng `org.sitemesh:sitemesh:3.3.0-RC1`, tương thích Jakarta Servlet/Tomcat 11.
 - SiteMesh chỉ map nhóm `/admin/category/*` của Bài tập 03; React storefront, API, login, OTP và Profile không bị decorator can thiệp.
 - Template Bootstrap dùng chung: `WEB-INF/decorators/exercise03-bootstrap.jsp`; cấu hình tại `WEB-INF/sitemesh3.xml`.
+
+- Bài tập 03 đã áp dụng decorator cho các route `/admin/category/list`, `/admin/category/add` và `/admin/category/edit`; các JSP tương ứng chỉ còn phần nội dung, không lặp lại `html/head/body`.

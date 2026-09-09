@@ -38,6 +38,8 @@ public class CategoryEditController extends HttpServlet {
             Category category = categoryService.findById(id);
             req.setAttribute("category", category);
         }
+        req.setAttribute("pageTitle", "Sửa danh mục | KhangGear");
+        req.setAttribute("activeMenu", "category");
         req.getRequestDispatcher("/views/admin/edit-category.jsp").forward(req, resp);
     }
 
