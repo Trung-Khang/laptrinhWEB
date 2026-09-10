@@ -133,8 +133,8 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public boolean hasOrders(int id) {
-        String sql = "SELECT CASE WHEN EXISTS (SELECT 1 FROM dbo.orders WHERE user_id=?) THEN 1 ELSE 0 END";
+    public boolean hasNonCancelledOrders(int id) {
+        String sql = "SELECT CASE WHEN EXISTS (SELECT 1 FROM dbo.orders WHERE user_id=? AND (status IS NULL OR status <> 'CANCELLED')) THEN 1 ELSE 0 END";
         try (Connection conn = new DBConnection().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) { return rs.next() && rs.getInt(1) == 1; }
@@ -145,8 +145,13 @@ public class UserDaoImpl implements UserDao {
     public void delete(int id) {
         try (Connection conn = new DBConnection().getConnection()) {
             conn.setAutoCommit(false);
-            try (PreparedStatement otp = conn.prepareStatement("DELETE FROM dbo.account_otps WHERE user_id=?");
+            try (PreparedStatement orderItems = conn.prepareStatement(
+                         "DELETE oi FROM dbo.order_items oi INNER JOIN dbo.orders o ON o.id = oi.order_id WHERE o.user_id=?");
+                 PreparedStatement orders = conn.prepareStatement("DELETE FROM dbo.orders WHERE user_id=?");
+                 PreparedStatement otp = conn.prepareStatement("DELETE FROM dbo.account_otps WHERE user_id=?");
                  PreparedStatement user = conn.prepareStatement("DELETE FROM dbo.[User] WHERE id=?")) {
+                orderItems.setInt(1, id); orderItems.executeUpdate();
+                orders.setInt(1, id); orders.executeUpdate();
                 otp.setInt(1, id); otp.executeUpdate();
                 user.setInt(1, id);
                 if (user.executeUpdate() != 1) throw new IllegalArgumentException("Không tìm thấy người dùng cần xóa.");

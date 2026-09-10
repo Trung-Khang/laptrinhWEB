@@ -25,7 +25,9 @@ public class AdminUserEditController extends HttpServlet {
     @Override protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8"); User stored = find(req.getParameter("id"));
         if (stored == null) { FlashMessage.error(req, "Không tìm thấy người dùng."); resp.sendRedirect(req.getContextPath() + "/admin/user/list"); return; }
-        stored.setEmail(req.getParameter("email")); stored.setFullName(req.getParameter("fullname")); stored.setPhone(req.getParameter("phone"));
+        stored.setEmail(FormValidation.trim(req.getParameter("email")));
+        stored.setFullName(FormValidation.trim(req.getParameter("fullname")));
+        stored.setPhone(FormValidation.trim(req.getParameter("phone")));
         stored.setPassword(req.getParameter("password")); stored.setActive(!"false".equals(req.getParameter("active")));
         try { stored.setRoleid(Integer.parseInt(req.getParameter("roleid"))); } catch (Exception e) { stored.setRoleid(0); }
         try {
@@ -34,6 +36,10 @@ public class AdminUserEditController extends HttpServlet {
             if (!com.baitap.model.UserRole.isValid(stored.getRoleid())) errors.put("roleid", "Role không hợp lệ.");
             if (!errors.isEmpty()) { req.setAttribute("fieldErrors", errors); req.setAttribute("editingUser", stored); req.getRequestDispatcher("/views/admin/edit-user.jsp").forward(req, resp); return; }
             userService.updateByAdmin(stored);
+            User persisted = userService.findById(stored.getId());
+            if (persisted == null || !stored.getEmail().equals(persisted.getEmail())) {
+                throw new IllegalStateException("Email chưa được lưu. Vui lòng thử lại.");
+            }
             FlashMessage.success(req, "Cập nhật người dùng thành công.");
             resp.sendRedirect(req.getContextPath() + "/admin/user/list");
         } catch (RuntimeException e) {
