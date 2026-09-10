@@ -29,7 +29,8 @@ public interface UserDao {
 
     void updatePassword(int id, String passwordHash);
 
-    boolean hasOrders(int id);
+    /** A user may be removed only when all of their orders are cancelled. */
+    boolean hasNonCancelledOrders(int id);
 
     void delete(int id);
 

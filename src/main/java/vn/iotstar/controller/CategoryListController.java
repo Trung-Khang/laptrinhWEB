@@ -34,7 +34,9 @@ public class CategoryListController extends HttpServlet {
         }
 
         req.setAttribute("cateList", cateList);
-        req.getRequestDispatcher("/views/admin/list-category.jsp").forward(req, resp);
+        req.setAttribute("pageTitle", "Danh sách danh mục | KhangGear");
+        req.setAttribute("activeMenu", "category");
+        getServletContext().getRequestDispatcher("/views/admin/list-category.jsp").include(req, resp);
     }
 
     @Override

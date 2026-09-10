@@ -10,7 +10,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
+import java.util.LinkedHashMap;
 import vn.iotstar.entity.Order;
+import vn.iotstar.validation.FormValidation;
 
 @WebServlet("/api/storefront/checkout")
 public class StorefrontCheckoutApiController extends BaseApiServlet {
@@ -25,7 +27,8 @@ public class StorefrontCheckoutApiController extends BaseApiServlet {
             JsonObject body = readBody(request);
             CheckoutRequest checkout = new CheckoutRequest(string(body, "fullName"), string(body, "phone"), string(body, "email"),
                     string(body, "address"), string(body, "note"), string(body, "paymentMethod"));
-            validate(checkout);
+            Map<String, String> fieldErrors = validate(checkout);
+            if (!fieldErrors.isEmpty()) { error(response, 400, "Thông tin thanh toán chưa hợp lệ.", fieldErrors); return; }
             Map<Integer, Integer> cart = StorefrontCartApiController.cartMap(request);
             Order order = repository.checkout(user, checkout, Map.copyOf(cart));
             cart.clear();
@@ -38,12 +41,17 @@ public class StorefrontCheckoutApiController extends BaseApiServlet {
         }
     }
 
-    private void validate(CheckoutRequest request) {
-        if (blank(request.fullName()) || request.fullName().length() > 150) throw new IllegalArgumentException("Vui long nhap ho ten hop le.");
-        if (blank(request.phone()) || !request.phone().matches("^[0-9+ -]{8,20}$")) throw new IllegalArgumentException("So dien thoai khong hop le.");
-        if (blank(request.email()) || !request.email().matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) throw new IllegalArgumentException("Email khong hop le.");
-        if (blank(request.address()) || request.address().length() > 500) throw new IllegalArgumentException("Vui long nhap dia chi giao hang.");
-        if (!"COD".equals(request.paymentMethod()) && !"BANK_TRANSFER".equals(request.paymentMethod())) throw new IllegalArgumentException("Phuong thuc thanh toan khong hop le.");
+    private Map<String, String> validate(CheckoutRequest request) {
+        Map<String, String> errors = new LinkedHashMap<>();
+        FormValidation.required(errors, "fullName", request.fullName(), "họ và tên");
+        FormValidation.maxLength(errors, "fullName", request.fullName(), 150, "Họ và tên");
+        FormValidation.required(errors, "phone", request.phone(), "số điện thoại");
+        FormValidation.optionalPhone(errors, "phone", request.phone());
+        FormValidation.email(errors, "email", request.email());
+        FormValidation.required(errors, "address", request.address(), "địa chỉ giao hàng");
+        FormValidation.maxLength(errors, "address", request.address(), 500, "Địa chỉ giao hàng");
+        if (!"COD".equals(request.paymentMethod()) && !"BANK_TRANSFER".equals(request.paymentMethod())) errors.put("paymentMethod", "Phương thức thanh toán không hợp lệ.");
+        return errors;
     }
 
     private boolean blank(String value) { return value == null || value.isBlank(); }

@@ -26,14 +26,9 @@
         </nav>
         <div class="profile-account">
             <c:choose>
-                <c:when test="${not empty profileUser.avatar && (fn:startsWith(profileUser.avatar, 'http://') || fn:startsWith(profileUser.avatar, 'https://'))}">
-                    <img src="${profileUser.avatar}" alt="Avatar" class="header-avatar-circle">
-                </c:when>
-                <c:when test="${not empty profileUser.avatar}">
-                    <c:url value="/image" var="headAvatarUrl">
-                        <c:param name="fname" value="${profileUser.avatar}"/>
-                    </c:url>
-                    <img src="${headAvatarUrl}" alt="Avatar" class="header-avatar-circle">
+                <c:when test="${not empty avatarUrl}">
+                    <img src="${avatarUrl}" alt="Avatar" class="header-avatar-circle" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                    <i class="fa-solid fa-circle-user" style="display: none; font-size: 24px; color: #64748b;"></i>
                 </c:when>
                 <c:otherwise>
                     <i class="fa-solid fa-circle-user" style="font-size: 24px; color: #64748b;"></i>
@@ -53,14 +48,9 @@
             </div>
             <div class="avatar-preview">
                 <c:choose>
-                    <c:when test="${not empty profileUser.avatar && (fn:startsWith(profileUser.avatar, 'http://') || fn:startsWith(profileUser.avatar, 'https://'))}">
-                        <img src="${profileUser.avatar}" alt="Ảnh đại diện">
-                    </c:when>
-                    <c:when test="${not empty profileUser.avatar}">
-                        <c:url value="/image" var="avatarUrl">
-                            <c:param name="fname" value="${profileUser.avatar}"/>
-                        </c:url>
-                        <img src="${avatarUrl}" alt="Ảnh đại diện">
+                    <c:when test="${not empty avatarUrl}">
+                        <img src="${avatarUrl}" alt="Ảnh đại diện" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                        <i class="fa-solid fa-user" style="display: none;"></i>
                     </c:when>
                     <c:otherwise>
                         <i class="fa-solid fa-user"></i>
@@ -88,14 +78,17 @@
             <label>
                 Họ và tên
                 <input name="fullname" required maxlength="150" value="${profileUser.fullName}">
+                <c:if test="${not empty fieldErrors.fullname}"><small class="field-error"><c:out value="${fieldErrors.fullname}"/></small></c:if>
             </label>
             <label>
                 Số điện thoại
                 <input name="phone" maxlength="30" value="${profileUser.phone}">
+                <c:if test="${not empty fieldErrors.phone}"><small class="field-error"><c:out value="${fieldErrors.phone}"/></small></c:if>
             </label>
             <label>
                 Ảnh đại diện mới
                 <input type="file" name="avatar" accept="image/jpeg,image/png,image/webp">
+                <c:if test="${not empty fieldErrors.avatar}"><small class="field-error"><c:out value="${fieldErrors.avatar}"/></small></c:if>
             </label>
             <p class="avatar-note">Hỗ trợ định dạng JPG, PNG, WEBP. Dung lượng tối đa 2MB. Để trống nếu muốn giữ ảnh đại diện hiện tại.</p>
             <div class="form-actions">

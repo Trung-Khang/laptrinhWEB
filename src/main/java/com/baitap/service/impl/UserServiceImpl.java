@@ -10,6 +10,9 @@ import com.baitap.service.UserService;
 import java.sql.Date;
 import java.util.List;
 import com.baitap.security.PasswordUtil;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import vn.iotstar.validation.FormValidation;
 
 public class UserServiceImpl implements UserService {
     private final UserDao userDao = new UserDaoImpl();
@@ -34,7 +37,11 @@ public class UserServiceImpl implements UserService {
         if (isBlank(user.getEmail()) || !isEmail(user.getEmail())) throw new IllegalArgumentException("Email khong hop le.");
         if (userDao.existsEmailExceptId(user.getEmail(), user.getId())) throw new IllegalArgumentException("Email da ton tai.");
         if (user.getAvatar() == null) user.setAvatar(stored.getAvatar());
-        User updated = profileRepository.updateProfile(user);
+        profileRepository.updateProfile(user);
+        User updated = userDao.findById(user.getId());
+        if (updated == null || !sameProfile(user, updated)) {
+            throw new IllegalStateException("Không thể xác nhận hồ sơ sau khi cập nhật.");
+        }
         user.setEmail(updated.getEmail());
         user.setFullName(updated.getFullName());
         user.setPhone(updated.getPhone());
@@ -52,7 +59,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void createByAdmin(User user) {
-        normalize(user); validateNewUser(user); validateRole(user.getRoleid());
+        normalize(user); validateNewUser(user); validateAdminFields(user); validateRole(user.getRoleid());
         user.setPassword(PasswordUtil.hash(user.getPassword()));
         user.setEmailVerified(true); user.setCreatedDate(new Date(System.currentTimeMillis())); userDao.insert(user);
     }
@@ -61,7 +68,7 @@ public class UserServiceImpl implements UserService {
     public void updateByAdmin(User user) {
         User stored = userDao.findById(user.getId());
         if (stored == null) throw new IllegalArgumentException("Không tìm thấy người dùng.");
-        normalize(user);
+        normalize(user); validateAdminFields(user);
         if (isBlank(user.getEmail()) || !isEmail(user.getEmail())) throw new IllegalArgumentException("Email không hợp lệ.");
         if (userDao.existsEmailExceptId(user.getEmail(), user.getId())) throw new IllegalArgumentException("Email đã tồn tại.");
         validateRole(user.getRoleid());
@@ -70,6 +77,10 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("Không thể hạ quyền hoặc khóa ADMIN cuối cùng.");
         }
         userDao.update(user);
+        User updated = userDao.findById(user.getId());
+        if (updated == null || !user.getEmail().equals(updated.getEmail())) {
+            throw new IllegalStateException("Không thể xác nhận email sau khi cập nhật.");
+        }
     }
 
     @Override
@@ -90,8 +101,8 @@ public class UserServiceImpl implements UserService {
         if (target.getRoleid() == UserRole.ADMIN && target.isActive() && userDao.countActiveAdmins() <= 1) {
             throw new IllegalArgumentException("Không thể xóa ADMIN hoạt động cuối cùng.");
         }
-        if (userDao.hasOrders(targetId)) {
-            throw new IllegalArgumentException("Không thể xóa tài khoản đã có lịch sử đơn hàng. Hãy khóa tài khoản thay vì xóa.");
+        if (userDao.hasNonCancelledOrders(targetId)) {
+            throw new IllegalArgumentException("Không thể xóa tài khoản khi còn đơn chưa hủy. Hãy chuyển tất cả đơn sang CANCELLED trước.");
         }
         userDao.delete(targetId);
     }
@@ -114,7 +125,21 @@ public class UserServiceImpl implements UserService {
     }
 
     private void validateRole(int roleId) { if (!UserRole.isValid(roleId)) throw new IllegalArgumentException("Role chỉ có thể là ADMIN, MANAGER hoặc CUSTOMER."); }
+    private void validateAdminFields(User user) {
+        Map<String, String> errors = new LinkedHashMap<>();
+        FormValidation.email(errors, "email", user.getEmail());
+        FormValidation.maxLength(errors, "fullname", user.getFullName(), 150, "Họ và tên");
+        FormValidation.optionalPhone(errors, "phone", user.getPhone());
+        if (!errors.isEmpty()) throw new IllegalArgumentException(errors.values().iterator().next());
+    }
+
     private void normalize(User user) { user.setUserName(trim(user.getUserName())); user.setEmail(trim(user.getEmail())); user.setFullName(trim(user.getFullName())); user.setPhone(trim(user.getPhone())); }
+    private boolean sameProfile(User expected, User actual) {
+        return expected.getEmail().equals(actual.getEmail())
+                && expected.getFullName().equals(actual.getFullName())
+                && expected.getPhone().equals(actual.getPhone())
+                && java.util.Objects.equals(expected.getAvatar(), actual.getAvatar());
+    }
     private String trim(String value) { return value == null ? "" : value.trim(); }
     private boolean isBlank(String value) { return value == null || value.trim().isEmpty(); }
     private boolean isEmail(String value) { return value.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"); }

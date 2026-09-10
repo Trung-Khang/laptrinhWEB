@@ -43,16 +43,31 @@ export default function AccountPage({ tab }) {
 
 function Profile({ profile, setProfile, notify }) {
   const [form, setForm] = useState(profile);
+  const [avatar, setAvatar] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState('');
   const [saving, setSaving] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
   useEffect(() => setForm(profile), [profile]);
+  useEffect(() => {
+    if (!avatar) {
+      setAvatarPreview('');
+      return undefined;
+    }
+    const preview = URL.createObjectURL(avatar);
+    setAvatarPreview(preview);
+    return () => URL.revokeObjectURL(preview);
+  }, [avatar]);
   const save = async (event) => {
     event.preventDefault();
     setSaving(true);
+    setFieldErrors({});
     try {
-      const next = await storefrontApi.updateProfile(form);
+      const next = await storefrontApi.updateProfile(form, avatar);
       setProfile(next);
+      setAvatar(null);
       notify(text.profileSaved);
     } catch (error) {
+      setFieldErrors(error.fieldErrors || {});
       notify(error.message);
     } finally {
       setSaving(false);
@@ -62,8 +77,8 @@ function Profile({ profile, setProfile, notify }) {
     <div className="kg-profile-layout">
       <section className="kg-profile-card">
         <div className="kg-avatar" style={{overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-          {profile.avatarUrl ? (
-            <img src={profile.avatarUrl} alt="Avatar" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+          {avatarPreview || profile.avatarUrl ? (
+            <img src={avatarPreview || profile.avatarUrl} alt="Avatar" style={{width: '100%', height: '100%', objectFit: 'cover'}} onError={(event) => { event.currentTarget.style.display = 'none' }} />
           ) : (
             <UserRound size={34} />
           )}
@@ -86,9 +101,10 @@ function Profile({ profile, setProfile, notify }) {
           </a>
         </div>
         <label>{text.username}<input value={form.username} disabled /></label>
-        <label>{text.fullName}<input required value={form.fullName || ''} onChange={(event) => setForm({ ...form, fullName: event.target.value })} /></label>
-        <label>Email<input required type="email" value={form.email || ''} onChange={(event) => setForm({ ...form, email: event.target.value })} /></label>
-        <label>{text.phone}<input value={form.phone || ''} onChange={(event) => setForm({ ...form, phone: event.target.value })} /></label>
+        <label>{text.fullName}<input required value={form.fullName || ''} onChange={(event) => setForm({ ...form, fullName: event.target.value })} />{fieldErrors.fullName && <small className="kg-field-error">{fieldErrors.fullName}</small>}</label>
+        <label>Email<input required type="email" value={form.email || ''} disabled />{fieldErrors.email && <small className="kg-field-error">{fieldErrors.email}</small>}</label>
+        <label>{text.phone}<input value={form.phone || ''} onChange={(event) => setForm({ ...form, phone: event.target.value })} />{fieldErrors.phone && <small className="kg-field-error">{fieldErrors.phone}</small>}</label>
+        <label>Ảnh đại diện<input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => setAvatar(event.target.files?.[0] || null)} />{fieldErrors.avatar && <small className="kg-field-error">{fieldErrors.avatar}</small>}</label>
         <button className="kg-button kg-button-primary" disabled={saving}><Save size={18} /> {saving ? text.saving : text.save}</button>
       </form>
     </div>

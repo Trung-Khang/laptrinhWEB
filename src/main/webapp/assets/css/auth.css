@@ -8,6 +8,7 @@ body.auth-page { min-height: 100vh; font-family: Arial, sans-serif; background: 
 .auth-card h1 { font-size: 26px; margin: 0; text-align: center; }
 .auth-subtitle { margin: 8px 0 26px; color: #cbd5e1; text-align: center; }
 .auth-alert { padding: 12px; margin-bottom: 18px; color: #b42318; background: #fff1f0; border: 1px solid #fecdca; border-radius: 6px; }
+.field-error, .kg-field-error { display: block; margin-top: 5px; color: #b42318; font-size: 13px; }
 .auth-success { color: #067647; background: #ecfdf3; border-color: #abefc6; }
 .auth-field { margin-bottom: 16px; }
 .auth-field label { display: block; margin-bottom: 7px; font-size: 14px; font-weight: 600; }

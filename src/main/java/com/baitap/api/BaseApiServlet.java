@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
+import java.util.Map;
 
 abstract class BaseApiServlet extends HttpServlet {
     protected static final Gson GSON = new GsonBuilder()
@@ -41,10 +42,14 @@ abstract class BaseApiServlet extends HttpServlet {
     }
 
     protected void error(HttpServletResponse response, int status, String message) throws IOException {
+        error(response, status, message, Collections.emptyMap());
+    }
+
+    protected void error(HttpServletResponse response, int status, String message, Map<String, String> fieldErrors) throws IOException {
         response.setStatus(status);
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json; charset=UTF-8");
-        GSON.toJson(new ApiResponse(false, message, null, Collections.emptyMap()), response.getWriter());
+        GSON.toJson(new ApiResponse(false, message, null, fieldErrors), response.getWriter());
     }
 
     protected JsonObject readBody(HttpServletRequest request) throws IOException {

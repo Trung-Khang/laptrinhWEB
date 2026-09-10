@@ -13,17 +13,21 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import vn.iotstar.validation.FormValidation;
 
 @WebServlet(urlPatterns = {"/forgot-password", "/forgot-password/verify", "/reset-password"})
 public class ForgotPasswordController extends HttpServlet {
     private final UserService userService = new UserServiceImpl();
     private final OtpService otpService = new OtpService();
+    private static final String GENERIC_SENT = "Nếu email tồn tại trong hệ thống, mã OTP đã được gửi.";
 
     @Override protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String path = request.getServletPath();
         if ("/forgot-password/verify".equals(path) && !resetRequested(request)) { response.sendRedirect(request.getContextPath() + "/forgot-password"); return; }
         if ("/reset-password".equals(path) && (request.getSession(false) == null || request.getSession(false).getAttribute("passwordResetVerifiedUserId") == null)) { response.sendRedirect(request.getContextPath() + "/forgot-password"); return; }
-        if ("/forgot-password/verify".equals(path) && "1".equals(request.getParameter("sent"))) request.setAttribute("message", "Nếu email tồn tại trong hệ thống, mã OTP đã được gửi.");
+        if ("/forgot-password/verify".equals(path) && "1".equals(request.getParameter("sent"))) request.setAttribute("message", GENERIC_SENT);
         request.getRequestDispatcher(viewFor(path)).forward(request, response);
     }
 
@@ -38,18 +42,20 @@ public class ForgotPasswordController extends HttpServlet {
     }
 
     private void requestOtp(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String email = FormValidation.trim(request.getParameter("email"));
+        Map<String, String> errors = new LinkedHashMap<>();
+        FormValidation.email(errors, "email", email);
+        if (!errors.isEmpty()) {
+            request.setAttribute("fieldErrors", errors); request.setAttribute("formEmail", email);
+            request.getRequestDispatcher("/WEB-INF/views/forgot-password.jsp").forward(request, response); return;
+        }
         HttpSession session = request.getSession(true);
-        clearResetSession(session);
-        session.setAttribute("passwordResetRequested", Boolean.TRUE);
-        User user = userService.findByEmail(request.getParameter("email") == null ? "" : request.getParameter("email").trim());
+        clearResetSession(session); session.setAttribute("passwordResetRequested", Boolean.TRUE);
+        User user = userService.findByEmail(email);
         if (user != null && user.isActive()) {
-            session.setAttribute("passwordResetUserId", user.getId());
-            session.setAttribute("passwordResetEmail", user.getEmail());
-            try {
-                otpService.send(user, OtpPurpose.PASSWORD_RESET);
-            } catch (RuntimeException exception) {
-                getServletContext().log("Password-reset OTP delivery failed for account id " + user.getId(), exception);
-            }
+            session.setAttribute("passwordResetUserId", user.getId()); session.setAttribute("passwordResetEmail", user.getEmail());
+            try { otpService.send(user, OtpPurpose.PASSWORD_RESET); }
+            catch (RuntimeException exception) { getServletContext().log("Password-reset OTP delivery failed for account id " + user.getId(), exception); }
         }
         response.sendRedirect(request.getContextPath() + "/forgot-password/verify?sent=1");
     }
@@ -60,50 +66,38 @@ public class ForgotPasswordController extends HttpServlet {
         if ("resend".equals(request.getParameter("action"))) {
             try {
                 if (userId != null) otpService.send(userService.findById(userId), OtpPurpose.PASSWORD_RESET);
-                request.setAttribute("message", "Nếu email tồn tại trong hệ thống, mã OTP mới đã được gửi.");
-            }
-            catch (RuntimeException exception) {
+                request.setAttribute("message", GENERIC_SENT);
+            } catch (RuntimeException exception) {
                 getServletContext().log("Password-reset OTP resend failed for account id " + userId, exception);
                 request.setAttribute("error", "Chưa thể gửi email OTP. Vui lòng thử lại sau.");
             }
             request.getRequestDispatcher("/WEB-INF/views/forgot-password-verify.jsp").forward(request, response); return;
         }
-        OtpVerifyResult result = userId == null ? OtpVerifyResult.INVALID : otpService.verify(userId, OtpPurpose.PASSWORD_RESET, request.getParameter("otp"));
+        Map<String, String> errors = new LinkedHashMap<>();
+        String otp = FormValidation.trim(request.getParameter("otp")); FormValidation.otp(errors, "otp", otp, 6);
+        if (!errors.isEmpty()) { request.setAttribute("fieldErrors", errors); request.getRequestDispatcher("/WEB-INF/views/forgot-password-verify.jsp").forward(request, response); return; }
+        OtpVerifyResult result = userId == null ? OtpVerifyResult.INVALID : otpService.verify(userId, OtpPurpose.PASSWORD_RESET, otp);
         if (result == OtpVerifyResult.VERIFIED) {
             request.getSession().setAttribute("passwordResetVerifiedUserId", userId);
             request.getSession().setAttribute("passwordResetVerifiedEmail", request.getSession().getAttribute("passwordResetEmail"));
             response.sendRedirect(request.getContextPath() + "/reset-password"); return;
         }
-        request.setAttribute("error", result == OtpVerifyResult.EXPIRED ? "Mã OTP đã hết hạn. Vui lòng gửi lại mã mới." : result == OtpVerifyResult.TOO_MANY_ATTEMPTS ? "Bạn đã nhập sai quá nhiều lần. Vui lòng gửi lại mã mới." : "Mã OTP không đúng.");
-        request.getRequestDispatcher("/WEB-INF/views/forgot-password-verify.jsp").forward(request, response);
+        request.setAttribute("error", messageFor(result)); request.getRequestDispatcher("/WEB-INF/views/forgot-password-verify.jsp").forward(request, response);
     }
 
     private void resetPassword(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        HttpSession session = request.getSession(false);
-        Object value = session == null ? null : session.getAttribute("passwordResetVerifiedUserId");
+        HttpSession session = request.getSession(false); Object value = session == null ? null : session.getAttribute("passwordResetVerifiedUserId");
         if (!(value instanceof Integer userId)) { response.sendRedirect(request.getContextPath() + "/forgot-password"); return; }
-        String password = request.getParameter("password");
-        if (password == null || !password.equals(request.getParameter("confirmPassword"))) {
-            request.setAttribute("error", "Xác nhận mật khẩu chưa khớp."); request.getRequestDispatcher("/WEB-INF/views/reset-password.jsp").forward(request, response); return;
-        }
-        try {
-            userService.resetPassword(userId, password);
-            clearResetSession(session);
-            response.sendRedirect(request.getContextPath() + "/login?reset=1");
-        } catch (RuntimeException exception) {
-            request.setAttribute("error", exception.getMessage()); request.getRequestDispatcher("/WEB-INF/views/reset-password.jsp").forward(request, response);
-        }
+        String password = request.getParameter("password"); String confirmation = request.getParameter("confirmPassword");
+        Map<String, String> errors = new LinkedHashMap<>(); FormValidation.password(errors, "password", password, 6); FormValidation.confirmation(errors, "confirmPassword", confirmation, password);
+        if (!errors.isEmpty()) { request.setAttribute("fieldErrors", errors); request.getRequestDispatcher("/WEB-INF/views/reset-password.jsp").forward(request, response); return; }
+        try { userService.resetPassword(userId, password); clearResetSession(session); response.sendRedirect(request.getContextPath() + "/login?reset=1"); }
+        catch (RuntimeException exception) { request.setAttribute("error", exception.getMessage()); request.getRequestDispatcher("/WEB-INF/views/reset-password.jsp").forward(request, response); }
     }
 
+    private String messageFor(OtpVerifyResult result) { return switch (result) { case EXPIRED -> "Mã OTP đã hết hạn. Vui lòng gửi lại mã mới."; case TOO_MANY_ATTEMPTS -> "Bạn đã nhập sai quá nhiều lần. Vui lòng gửi lại mã mới."; default -> "Mã OTP không đúng. Vui lòng kiểm tra lại."; }; }
     private Integer resetUserId(HttpServletRequest request) { Object value = request.getSession(false) == null ? null : request.getSession(false).getAttribute("passwordResetUserId"); return value instanceof Integer id ? id : null; }
     private boolean resetRequested(HttpServletRequest request) { return request.getSession(false) != null && Boolean.TRUE.equals(request.getSession(false).getAttribute("passwordResetRequested")); }
-    private void clearResetSession(HttpSession session) {
-        if (session == null) return;
-        session.removeAttribute("passwordResetRequested");
-        session.removeAttribute("passwordResetUserId");
-        session.removeAttribute("passwordResetEmail");
-        session.removeAttribute("passwordResetVerifiedUserId");
-        session.removeAttribute("passwordResetVerifiedEmail");
-    }
+    private void clearResetSession(HttpSession session) { if (session == null) return; session.removeAttribute("passwordResetRequested"); session.removeAttribute("passwordResetUserId"); session.removeAttribute("passwordResetEmail"); session.removeAttribute("passwordResetVerifiedUserId"); session.removeAttribute("passwordResetVerifiedEmail"); }
     private String viewFor(String path) { return switch (path) { case "/forgot-password/verify" -> "/WEB-INF/views/forgot-password-verify.jsp"; case "/reset-password" -> "/WEB-INF/views/reset-password.jsp"; default -> "/WEB-INF/views/forgot-password.jsp"; }; }
 }
