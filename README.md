@@ -338,7 +338,7 @@ Công nghệ bổ sung/được dùng trong giai đoạn này: Jakarta Persisten
 - Kiểm tra & Bảo mật file upload:
   - Giới hạn dung lượng tối đa 2MB (trả thông báo thân thiện nếu vượt quá giới hạn).
   - Kiểm tra MIME type hợp lệ (`image/jpeg`, `image/png`, `image/webp`) và phần mở rộng an toàn (`.jpg`, `.jpeg`, `.png`, `.webp`).
-  - Đặt tên file an toàn bằng UUID ngẫu nhiên gắn với User ID (`avatar_{id}_{uuid}.ext`), ngăn ngừa xung đột và tuyệt đối không dùng tên file gốc từ client.
+  - Đặt tên file an toàn bằng UUID ngẫu nhiên (`avatar/{uuid}.ext`), ngăn ngừa xung đột và tuyệt đối không dùng tên file gốc từ client.
   - Chặn tấn công đường dẫn Path Traversal bằng chuẩn hóa đường dẫn `Path.normalize()`.
 - Lưu trữ & Hiển thị:
   - Lưu vào thư mục upload chuyên biệt: `Constant.DIR + "/avatar"`.

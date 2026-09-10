@@ -141,6 +141,22 @@ public final class FormValidation {
         }
     }
 
+    public static void validateAvatar(Map<String, String> errors, String field, Part part, long maxBytes) {
+        if (part == null || part.getSize() == 0) {
+            return;
+        }
+        if (part.getSize() > maxBytes) {
+            errors.putIfAbsent(field, "Ảnh đại diện không được lớn hơn " + (maxBytes / (1024 * 1024)) + " MB.");
+            return;
+        }
+        String extension = extensionOf(part.getSubmittedFileName());
+        String contentType = part.getContentType() == null ? "" : part.getContentType().toLowerCase();
+        if (!Set.of("jpg", "jpeg", "png", "webp").contains(extension)
+                || !Set.of("image/jpeg", "image/png", "image/webp").contains(contentType)) {
+            errors.putIfAbsent(field, "Ảnh đại diện phải có định dạng JPG, PNG hoặc WEBP hợp lệ.");
+        }
+    }
+
     public static void validateImageUrl(Map<String, String> errors, String field, String value) {
         String url = trim(value);
         if (url.isEmpty()) return;

@@ -97,7 +97,7 @@
             </label>
             <label>
                 Ảnh đại diện mới
-                <input type="file" name="avatar" accept="image/jpeg,image/png,image/gif,image/webp">
+                <input type="file" name="avatar" accept="image/jpeg,image/png,image/webp">
                 <c:if test="${not empty fieldErrors.avatar}"><small class="field-error"><c:out value="${fieldErrors.avatar}"/></small></c:if>
             </label>
             <p class="avatar-note">Hỗ trợ định dạng JPG, PNG, WEBP. Dung lượng tối đa 2MB. Để trống nếu muốn giữ ảnh đại diện hiện tại.</p>

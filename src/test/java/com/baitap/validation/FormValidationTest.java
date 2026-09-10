@@ -3,9 +3,13 @@ package com.baitap.validation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.InputStream;
+import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
+import jakarta.servlet.http.Part;
 import org.junit.jupiter.api.Test;
 
 import vn.iotstar.validation.FormValidation;
@@ -95,5 +99,29 @@ class FormValidationTest {
         FormValidation.required(errors, "address", "1 Duong So 1", "dia chi giao hang");
 
         assertTrue(errors.isEmpty());
+    }
+
+    @Test
+    void acceptsOnlySafeAvatarFormats() {
+        Map<String, String> valid = new LinkedHashMap<>();
+        FormValidation.validateAvatar(valid, "avatar", new TestPart("avatar.webp", "image/webp", 1024), 2L * 1024 * 1024);
+        assertTrue(valid.isEmpty());
+
+        Map<String, String> invalid = new LinkedHashMap<>();
+        FormValidation.validateAvatar(invalid, "avatar", new TestPart("avatar.gif", "image/gif", 1024), 2L * 1024 * 1024);
+        assertTrue(invalid.containsKey("avatar"));
+    }
+
+    private record TestPart(String submittedFileName, String contentType, long size) implements Part {
+        @Override public InputStream getInputStream() { return InputStream.nullInputStream(); }
+        @Override public String getContentType() { return contentType; }
+        @Override public String getName() { return "avatar"; }
+        @Override public String getSubmittedFileName() { return submittedFileName; }
+        @Override public long getSize() { return size; }
+        @Override public void write(String fileName) { }
+        @Override public void delete() { }
+        @Override public String getHeader(String name) { return null; }
+        @Override public Collection<String> getHeaders(String name) { return List.of(); }
+        @Override public Collection<String> getHeaderNames() { return List.of(); }
     }
 }
