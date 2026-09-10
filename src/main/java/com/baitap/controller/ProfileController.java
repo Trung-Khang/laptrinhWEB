@@ -14,10 +14,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 import java.io.IOException;
+import java.io.File;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import vn.iotstar.validation.FormValidation;
 import vn.iotstar.validation.ImageUploadUtil;
+import vn.iotstar.util.Constant;
 
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 2 * 1024 * 1024, maxRequestSize = 5 * 1024 * 1024)
 @WebServlet(urlPatterns = "/profile")
@@ -41,6 +45,7 @@ public class ProfileController extends HttpServlet {
         }
         request.getSession().setAttribute("account", fresh);
         request.setAttribute("profileUser", fresh);
+        request.setAttribute("avatarUrl", publicAvatarUrl(request, fresh.getAvatar()));
         request.getRequestDispatcher("/WEB-INF/views/profile.jsp").forward(request, response);
     }
 
@@ -99,6 +104,7 @@ public class ProfileController extends HttpServlet {
     private void showFormErrors(HttpServletRequest request, HttpServletResponse response, User user,
                                 Map<String, String> errors) throws ServletException, IOException {
         request.setAttribute("profileUser", user);
+        request.setAttribute("avatarUrl", publicAvatarUrl(request, user.getAvatar()));
         request.setAttribute("fieldErrors", errors);
         request.getRequestDispatcher("/WEB-INF/views/profile.jsp").forward(request, response);
     }
@@ -109,5 +115,26 @@ public class ProfileController extends HttpServlet {
         if (value instanceof User user) return user;
         response.sendRedirect(request.getContextPath() + "/login");
         return null;
+    }
+
+    private String publicAvatarUrl(HttpServletRequest request, String avatar) {
+        if (avatar == null || avatar.isBlank()) {
+            return null;
+        }
+        String source = avatar.trim();
+        if (source.startsWith("http://") || source.startsWith("https://")) {
+            return source;
+        }
+        String normalized = source.replace('\\', '/');
+        while (normalized.startsWith("/")) {
+            normalized = normalized.substring(1);
+        }
+        if (normalized.contains("..")) {
+            return null;
+        }
+        File file = new File(Constant.DIR, normalized);
+        String version = file.isFile() ? "&v=" + file.lastModified() : "";
+        return request.getContextPath() + "/image?fname="
+                + URLEncoder.encode(normalized, StandardCharsets.UTF_8).replace("+", "%20") + version;
     }
 }
